@@ -7,39 +7,55 @@
 // see whether the failure is `incorrect_client_credentials`,
 // `bad_verification_code`, `redirect_uri_mismatch`, etc.
 //
-// Usage:
-//   1. Open https://spring-massage-therapy.vercel.app/keystatic
-//   2. Click "Sign in with GitHub" — let GitHub redirect you back
-//   3. When the real callback returns 401, copy the `code=...` from the URL
-//   4. Visit /api/debug-oauth?code=<that code> WITHIN 10 MINUTES
-//   5. Check Vercel function logs for the [oauth-debug] line — it has the
-//      exact GitHub error.
+// Two modes:
+//   ?code=...        — exchange the GitHub code for a token (OAuth callback test)
+//   ?mode=request    — just dump request headers + URL so we can see what
+//                      origin/protocol Vercel hands to the function. Useful
+//                      for diagnosing redirect_uri mismatches.
 //
 // Remove this file once OAuth is fixed.
 
 import type { APIRoute } from 'astro';
 
-// Cloudflare build is pure static and has no adapter — prerender this as
-// a static 404 there. Vercel/Node builds have SSR adapters and run the
-// debug logic at request time.
 const isStaticBuild = process.env.DEPLOY_TARGET === 'cloudflare';
 export const prerender = isStaticBuild;
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
   if (isStaticBuild) {
     return new Response('Not available on this host', { status: 404 });
+  }
+
+  const mode = url.searchParams.get('mode');
+  if (mode === 'request') {
+    // Dump everything we can see about the request.
+    const headers: Record<string, string> = {};
+    request.headers.forEach((v, k) => {
+      headers[k] = v;
+    });
+    const dump = {
+      'request.url (raw, what Astro sees)': request.url,
+      'url.toString() (what new URL gives us)': url.toString(),
+      'url.origin': url.origin,
+      'url.protocol': url.protocol,
+      'url.host': url.host,
+      'url.pathname': url.pathname,
+      'reconstructed redirect_uri': `${url.origin}/api/keystatic/github/oauth/callback`,
+      headers,
+    };
+    return new Response(JSON.stringify(dump, null, 2), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const code = url.searchParams.get('code');
   const clientId = import.meta.env.KEYSTATIC_GITHUB_CLIENT_ID;
   const clientSecret = import.meta.env.KEYSTATIC_GITHUB_CLIENT_SECRET;
 
-  // Diagnostic: confirm the env vars are actually visible to the function.
-  // Length-only so we don't leak secrets to logs.
   const diag = {
     clientIdPresent: !!clientId,
     clientIdLength: clientId?.length ?? 0,
-    clientIdFirst3: clientId?.slice(0, 3) ?? null, // safe to show first 3 chars
+    clientIdFirst3: clientId?.slice(0, 3) ?? null,
     clientSecretPresent: !!clientSecret,
     clientSecretLength: clientSecret?.length ?? 0,
     codePresent: !!code,
@@ -48,7 +64,7 @@ export const GET: APIRoute = async ({ url }) => {
 
   if (!code) {
     return new Response(
-      JSON.stringify({ error: 'pass ?code=... in the query string', diag }, null, 2),
+      JSON.stringify({ error: 'pass ?code=... in the query string, or ?mode=request to dump headers', diag }, null, 2),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -78,7 +94,6 @@ export const GET: APIRoute = async ({ url }) => {
     /* leave bodyJson null */
   }
 
-  // Redact access_token if it accidentally appears (success case).
   const safeBody =
     bodyJson && typeof bodyJson === 'object' && 'access_token' in (bodyJson as Record<string, unknown>)
       ? { ...(bodyJson as Record<string, unknown>), access_token: '[REDACTED]' }
