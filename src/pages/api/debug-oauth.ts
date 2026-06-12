@@ -19,9 +19,17 @@
 
 import type { APIRoute } from 'astro';
 
-export const prerender = false;
+// Cloudflare build is pure static and has no adapter — prerender this as
+// a static 404 there. Vercel/Node builds have SSR adapters and run the
+// debug logic at request time.
+const isStaticBuild = process.env.DEPLOY_TARGET === 'cloudflare';
+export const prerender = isStaticBuild;
 
 export const GET: APIRoute = async ({ url }) => {
+  if (isStaticBuild) {
+    return new Response('Not available on this host', { status: 404 });
+  }
+
   const code = url.searchParams.get('code');
   const clientId = import.meta.env.KEYSTATIC_GITHUB_CLIENT_ID;
   const clientSecret = import.meta.env.KEYSTATIC_GITHUB_CLIENT_SECRET;
@@ -62,7 +70,7 @@ export const GET: APIRoute = async ({ url }) => {
   });
 
   const status = res.status;
-  let bodyText = await res.text();
+  const bodyText = await res.text();
   let bodyJson: unknown = null;
   try {
     bodyJson = JSON.parse(bodyText);
