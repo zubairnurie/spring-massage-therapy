@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { type Locale, localeFromPath, strings, localePath } from '../lib/i18n';
+
+const locale: Locale = localeFromPath(Astro.url.pathname);
+const s = strings(locale);
+
+const copy = locale === 'fr' ? {
+  eyebrow: 'Page introuvable',
+  title: '404 — Cette page semble s\'être perdue',
+  body: 'Comme un client qui se trompe d\'escalier, cette page n\'est pas là où vous l\'attendiez. Pas de souci — voici quelques chemins pour retrouver votre voie.',
+  links: [
+    { href: '/', label: 'Retour à l\'accueil' },
+    { href: '/services', label: 'Voir les services' },
+    { href: '/book', label: 'Réserver une séance' },
+    { href: '/contact', label: 'Nous contacter' },
+  ],
+} : {
+  eyebrow: 'Page not found',
+  title: '404 — This page seems to have wandered off',
+  body: 'Like a client who took the wrong staircase, this page isn\'t where you expected. No worries — here are a few ways back.',
+  links: [
+    { href: '/', label: 'Back to home' },
+    { href: '/services', label: 'Browse services' },
+    { href: '/book', label: 'Book a session' },
+    { href: '/contact', label: 'Contact us' },
+  ],
+};
+---
+<BaseLayout
+  locale={locale}
+  title={locale === 'fr' ? '404 — Spring Massage Therapy' : '404 — Spring Massage Therapy'}
+  description={copy.body}
+  noindex={true}
+>
+  <section class="max-w-3xl mx-auto px-6 py-32 text-center">
+    <p class="font-script text-coral-400 text-2xl mb-2">{copy.eyebrow}</p>
+    <h1 class="font-serif text-4xl md:text-5xl mb-6 text-stone-700">{copy.title}</h1>
+    <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
+    <p class="text-stone-600 leading-relaxed mb-10 max-w-xl mx-auto">{copy.body}</p>
+
+    <ul class="flex flex-wrap justify-center gap-3">
+      {copy.links.map(link => (
+        <li>
+          <a
+            href={localePath(link.href, locale)}
+            class="inline-block border border-stone-300 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-xs px-5 py-2.5 rounded-full transition"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

@@ -1,0 +1,48 @@
+---
+import { reader } from '../lib/reader';
+import { type Locale, t, strings } from '../lib/i18n';
+
+const locale: Locale = (Astro.props.locale as Locale) ?? 'en';
+const s = strings(locale);
+
+const contact = await reader.singletons.contactInfo.read();
+const site = await reader.singletons.site.read();
+const phone = contact?.phone ?? '(579) 366-4118';
+const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
+const address = t(contact, 'address', locale, '2229 Hawarden, Montréal, Québec');
+const hours = t(contact, 'hours', locale, 'Mon–Sun · 8 AM – 9 PM');
+const mark = site?.favicon ?? '/images/site/logo-mark.png';
+---
+<footer class="bg-stone-700 text-stone-100 mt-24">
+  <div class="max-w-6xl mx-auto px-6 py-16 grid gap-10 md:grid-cols-3">
+    <div>
+      <div class="flex items-center gap-3 mb-3">
+        <img src={mark} alt="" class="h-10 w-auto opacity-90" />
+        <span class="font-serif text-lg">Spring Massage Therapy</span>
+      </div>
+      <p class="text-sm text-stone-300 leading-relaxed">
+        {s.siteFooterTagline}
+      </p>
+    </div>
+
+    <div>
+      <h3 class="font-serif text-coral-200 text-lg mb-3">{s.openHours}</h3>
+      <p class="text-sm text-stone-300">{hours}</p>
+    </div>
+
+    <div>
+      <h3 class="font-serif text-coral-200 text-lg mb-3">{s.contactLabel}</h3>
+      <ul class="text-sm text-stone-300 space-y-1">
+        <li>{address}</li>
+        <li><a href={phoneHref} class="hover:text-coral-200 transition">{phone}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-stone-600/40">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex flex-wrap justify-between gap-3 text-xs text-stone-400">
+      <span>{s.allRights.replace('{year}', String(new Date().getFullYear()))}</span>
+      <span>{s.inMontreal}</span>
+    </div>
+  </div>
+</footer>

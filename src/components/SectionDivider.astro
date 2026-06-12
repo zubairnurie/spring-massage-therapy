@@ -1,0 +1,43 @@
+---
+/**
+ * Subtle botanical divider — a thin sprig motif that breaks up the vertical
+ * rhythm between major sections without breaking the calm aesthetic.
+ *
+ * Usage:
+ *   <SectionDivider />               <!-- default: coral accent -->
+ *   <SectionDivider tone="muted" />  <!-- subtle stone-300 for darker bg -->
+ */
+export interface Props {
+  tone?: 'coral' | 'muted';
+  class?: string;
+}
+const { tone = 'coral', class: extraClass = '' } = Astro.props;
+
+const stroke = tone === 'coral' ? '#ED8569' : '#C9BCA4';
+---
+<div class:list={['flex justify-center my-2 py-8', extraClass]} aria-hidden="true">
+  <svg
+    width="120"
+    height="24"
+    viewBox="0 0 120 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="presentation"
+  >
+    <!-- Center hairline -->
+    <line x1="0" y1="12" x2="44" y2="12" stroke={stroke} stroke-width="0.5" opacity="0.5"/>
+    <line x1="76" y1="12" x2="120" y2="12" stroke={stroke} stroke-width="0.5" opacity="0.5"/>
+
+    <!-- Sprig in the middle -->
+    <g stroke={stroke} stroke-width="1" stroke-linecap="round" fill="none">
+      <!-- Stem -->
+      <path d="M60 4 Q60 12 60 20" />
+      <!-- Left leaf pair -->
+      <path d="M60 9 Q54 8 52 11 Q56 12 60 11" fill={stroke} fill-opacity="0.15"/>
+      <path d="M60 14 Q54 13 52 16 Q56 17 60 16" fill={stroke} fill-opacity="0.15"/>
+      <!-- Right leaf pair -->
+      <path d="M60 9 Q66 8 68 11 Q64 12 60 11" fill={stroke} fill-opacity="0.15"/>
+      <path d="M60 14 Q66 13 68 16 Q64 17 60 16" fill={stroke} fill-opacity="0.15"/>
+    </g>
+  </svg>
+</div>

@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reader, renderMarkdoc } from '../lib/reader';
+import { type Locale, t, strings, localePath } from '../lib/i18n';
+import { isActiveNow } from '../lib/active-window';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const allPromos = await reader.collections.promotions.all();
+const promos = await Promise.all(
+  allPromos
+    .filter(p => isActiveNow({
+      active: p.entry.active,
+      startsAt: (p.entry as any).startsAt,
+      endsAt: (p.entry as any).endsAt,
+    }))
+    .map(async p => ({
+      slug: p.slug,
+      title: locale === 'fr' && p.entry.titleFr ? p.entry.titleFr : titleFromSlug(p.slug),
+      tag: t(p.entry, 'tag', locale, p.entry.tagEn ?? ''),
+      subtitle: t(p.entry, 'subtitle', locale, ''),
+      ctaLabel: t(p.entry, 'ctaLabel', locale, 'Call Now'),
+      ctaHref: p.entry.ctaHref,
+      image: p.entry.image,
+      bodyHtml: locale === 'fr' && p.entry.bodyFr
+        ? `<p>${escapeHtml(p.entry.bodyFr)}</p>`
+        : await renderMarkdoc(p.entry.bodyEn),
+      missingFr: locale === 'fr' && !p.entry.bodyFr?.trim(),
+    }))
+);
+
+function titleFromSlug(slug: string): string {
+  return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const titleStr = locale === 'fr'
+  ? 'Promotions — Spring Massage Therapy Montréal'
+  : 'Promotions — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? 'Promotions et forfaits de massage en cours — tissus profonds offert, 10 $ de réduction sur les pierres chaudes, forfait de 5 séances. Offrez-vous, ou à un être cher.'
+  : 'Current massage promotions and packages — deep tissue free, $10 off hot stone, package of 5. Gift to yourself or a significant other.';
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr}>
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-center mb-14">
+      <p class="font-script text-coral-400 text-2xl mb-2">{s.giftToYourself}</p>
+      <h1 class="font-serif text-4xl md:text-5xl mb-4">{s.summerPromotionsTitle}</h1>
+      <div class="w-16 h-px bg-coral-300 mx-auto"></div>
+    </div>
+
+    {promos.length === 0 ? (
+      <p class="text-center text-stone-500 italic">{s.noActivePromos}</p>
+    ) : (
+      <div class="grid md:grid-cols-3 gap-6">
+        {promos.map(p => (
+          <article class="relative bg-stone-100 overflow-hidden flex flex-col">
+            {p.image && (
+              <div class="aspect-[16/9] overflow-hidden">
+                <img src={p.image} alt="" class="w-full h-full object-cover" />
+              </div>
+            )}
+            {p.tag && (
+              <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none" aria-hidden="true">
+                <span class="absolute top-6 -right-9 w-40 text-center bg-coral-400 text-white text-[10px] tracking-widest uppercase py-1 rotate-45 shadow-sm">
+                  {p.tag}
+                </span>
+              </div>
+            )}
+            <div class="p-10 text-center">
+              <p class="text-xs tracking-widest uppercase text-stone-500 mb-3">{p.subtitle}</p>
+              <h2 class="font-serif text-3xl text-stone-700 mb-4">{p.title}</h2>
+              {p.missingFr && (
+                <p class="text-xs text-stone-400 italic mb-2">{s.translationComingSoon}</p>
+              )}
+              <div class="text-stone-600 mb-8 prose prose-sm mx-auto" set:html={p.bodyHtml}></div>
+              <a href={p.ctaHref} class="inline-block bg-coral-400 hover:bg-coral-500 text-white text-xs tracking-widest uppercase px-8 py-2.5 rounded-full transition">
+                {p.ctaLabel}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

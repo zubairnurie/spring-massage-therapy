@@ -1,0 +1,32 @@
+heroEyebrowEn: Welcome to our
+heroEyebrowFr: Bienvenue dans notre
+heroTitleEn: Spring Massage Therapy
+heroTitleFr: Spring Massage Therapy
+heroBodyEn: >-
+  You deserve more than a rushed massage. I'm Zarah, and every session is
+  delivered with care — focusing on nurturing your mind and body, whether for
+  short-term relief or long-term wellness.
+heroImage: /images/hero/heroImage.jpg
+heroImages:
+  - /images/hero/heroImages/0.jpg
+  - /images/hero/heroImages/1.webp
+  - /images/hero/heroImages/2.jpeg
+heroIntervalSeconds: 4
+ctaPrimaryEn: Book a Session
+ctaPrimaryFr: Réserver
+ctaPrimaryHref: /book
+ctaSecondaryEn: Explore Services
+ctaSecondaryFr: Voir les services
+ctaSecondaryHref: /services
+storyEyebrowEn: A hidden gem
+storyEyebrowFr: Un trésor caché
+storyTitleEn: The yellow little castle
+storyTitleFr: Le petit château jaune
+storyBodyEn: >-
+  The studio is tucked away in a magical corner of the city — a heritage manor
+  from around 1840, surrounded by greenery in the heart of downtown Montréal.
+
+
+  Time-worn stone, tall windows, and peaceful energy woven into the very walls.
+  It is a place where history, nature, and care come together to hold sanctuary.
+storyImage: /images/home/storyImage.jpg

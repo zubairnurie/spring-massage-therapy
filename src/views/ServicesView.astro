@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reader, renderMarkdoc } from '../lib/reader';
+import { type Locale, t, hasFr, strings, localePath } from '../lib/i18n';
+import { isActiveNow } from '../lib/active-window';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const contact = await reader.singletons.contactInfo.read();
+const phone = contact?.phone ?? '(579) 366-4118';
+const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
+const handle = contact?.bookingHandle?.trim() ?? '';
+
+type GroupKey = 'full-body' | 'specialty' | 'targeted' | 'other';
+
+const all = await reader.collections.services.all();
+const services = await Promise.all(
+  all.map(async svc => {
+    const e: any = svc.entry;
+    const saleActive = !!(e.salePrice ?? '').trim() && isActiveNow({
+      active: true,
+      startsAt: e.saleStartsAt,
+      endsAt: e.saleEndsAt,
+    });
+    return {
+      slug: svc.slug,
+      name: locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug),
+      price: svc.entry.price,
+      salePrice: saleActive ? (e.salePrice ?? '').trim() : '',
+      saleNote: saleActive
+        ? (locale === 'fr' ? (e.saleNoteFr ?? '').trim() || (e.saleNoteEn ?? '').trim() : (e.saleNoteEn ?? '').trim())
+        : '',
+      order: svc.entry.order ?? 999,
+      group: ((svc.entry as any).group ?? 'other') as GroupKey,
+      featured: svc.entry.featured,
+      image: svc.entry.image,
+      bookingSlug: svc.entry.bookingSlug?.trim() ?? '',
+      descriptionHtml: locale === 'fr' && svc.entry.descriptionFr
+        ? `<p>${escapeHtml(svc.entry.descriptionFr)}</p>`
+        : await renderMarkdoc(svc.entry.descriptionEn),
+      missingFr: locale === 'fr' && !svc.entry.descriptionFr?.trim(),
+    };
+  })
+);
+services.sort((a, b) => a.order - b.order);
+
+// Display order of groups (more popular / commonly-bought first)
+const groupOrder: GroupKey[] = ['full-body', 'specialty', 'targeted', 'other'];
+
+// Build groups in the right order, only including those that have services
+const groupedServices = groupOrder
+  .map(key => ({
+    key,
+    label: s.serviceGroups[key],
+    items: services.filter(svc => svc.group === key),
+  }))
+  .filter(g => g.items.length > 0);
+
+function titleFromSlug(slug: string): string {
+  return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function bookHref(svc: { bookingSlug: string }): string {
+  if (handle && svc.bookingSlug) return `${localePath('/book', locale)}?service=${encodeURIComponent(svc.bookingSlug)}`;
+  return phoneHref;
+}
+function bookLabel(svc: { bookingSlug: string }): string {
+  return handle && svc.bookingSlug ? s.bookThis : s.callToBook;
+}
+
+const titleStr = locale === 'fr'
+  ? 'Services et tarifs — Spring Massage Therapy Montréal'
+  : 'Services & Pricing — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? 'Massage complet du corps, tissus profonds, pierres chaudes, visage et pieds à Montréal. Séances de 30 à 90 minutes, 40 $ à 120 $.'
+  : 'Full body massage, deep tissue, hot stone, facial and foot massage in Montréal. Sessions from 30 to 90 minutes, $40 to $120. Tailored to your needs.';
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr}>
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <div class="text-center mb-12">
+      <p class="font-script text-coral-400 text-2xl mb-2">{s.tailoredToYourNeeds}</p>
+      <h1 class="font-serif text-4xl md:text-5xl mb-4">{s.servicesAndPricing}</h1>
+      <div class="w-16 h-px bg-coral-300 mx-auto mb-6"></div>
+      <p class="text-stone-600 max-w-2xl mx-auto">{s.everySession}</p>
+    </div>
+
+    {groupedServices.map((group, gi) => (
+      <div class:list={['mb-12', gi > 0 ? 'mt-16' : '']}>
+        <!-- Group heading -->
+        <div class="flex items-center gap-4 mb-6">
+          <h2 class="font-serif text-2xl md:text-3xl text-stone-700 whitespace-nowrap">
+            {group.label}
+          </h2>
+          <div class="flex-1 h-px bg-stone-200"></div>
+          <span class="text-xs tracking-widest uppercase text-stone-400">
+            {group.items.length}
+          </span>
+        </div>
+
+        <!-- Group items -->
+        <div class="divide-y divide-stone-200 border-y border-stone-200">
+          {group.items.map(svc => (
+            <div class="py-6 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center">
+              {svc.image ? (
+                <div class="w-full md:w-32 aspect-[4/3] overflow-hidden rounded-sm">
+                  <img src={svc.image} alt="" class="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div class="hidden md:block w-32"></div>
+              )}
+              <div>
+                <h3 class="font-serif text-xl text-stone-700 mb-1">{svc.name}</h3>
+                {svc.missingFr && (
+                  <p class="text-xs text-stone-400 italic mb-1">{s.translationComingSoon}</p>
+                )}
+                <div class="text-stone-600 leading-relaxed prose prose-sm" set:html={svc.descriptionHtml}></div>
+              </div>
+              <div class="font-serif whitespace-nowrap text-right">
+                {svc.salePrice ? (
+                  <>
+                    <div class="text-stone-400 text-base line-through leading-none">{svc.price}</div>
+                    <div class="text-coral-500 text-2xl mt-1 leading-none">{svc.salePrice}</div>
+                    {svc.saleNote && (
+                      <div class="font-sans not-italic text-[10px] tracking-wide uppercase text-coral-500 mt-1 max-w-[12rem]">
+                        {svc.saleNote}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div class="text-coral-500 text-xl">{svc.price}</div>
+                )}
+              </div>
+              <a
+                href={bookHref(svc)}
+                class="text-xs tracking-widest uppercase px-5 py-2.5 rounded-full transition border whitespace-nowrap text-center"
+                class:list={[
+                  handle && svc.bookingSlug
+                    ? 'bg-coral-400 hover:bg-coral-500 text-white border-coral-400'
+                    : 'bg-stone-50 text-stone-600 border-stone-300 hover:border-coral-300 hover:text-coral-500',
+                ]}
+              >
+                {bookLabel(svc)}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    <div class="text-center mt-16">
+      <a href={localePath('/book', locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block">
+        {s.bookAnySession}
+      </a>
+      <p class="text-sm text-stone-500 mt-4">
+        {s.orCall(phone).split(phone)[0]}<a href={phoneHref} class="text-coral-500 hover:underline">{phone}</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>

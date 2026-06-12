@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reader, renderMarkdoc } from '../lib/reader';
+import { type Locale, strings, localePath } from '../lib/i18n';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const contact = await reader.singletons.contactInfo.read();
+const phone = contact?.phone ?? '(579) 366-4118';
+const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
+const handle = contact?.bookingHandle?.trim() ?? '';
+
+const allServices = await reader.collections.services.all();
+const bookableServices = allServices
+  .map(svc => ({
+    slug: svc.slug,
+    name: locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug),
+    price: svc.entry.price,
+    order: svc.entry.order ?? 999,
+    bookingSlug: svc.entry.bookingSlug?.trim() ?? '',
+  }))
+  .filter(svc => svc.bookingSlug)
+  .sort((a, b) => a.order - b.order);
+
+function titleFromSlug(slug: string): string {
+  return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+
+const calLink = handle;
+
+const titleStr = locale === 'fr'
+  ? 'Réserver — Spring Massage Therapy Montréal'
+  : 'Book a Session — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? `Réservez votre massage en ligne. Séances de 60 ou 90 minutes. Ou appelez ${phone}.`
+  : `Book your massage online. 60 or 90 minute sessions available. Or call ${phone}.`;
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr} noindex={true}>
+  <section class="max-w-4xl mx-auto px-6 py-16 text-center">
+    <p class="font-script text-coral-400 text-2xl mb-2">{s.youOweYourself}</p>
+    <h1 class="font-serif text-4xl md:text-5xl mb-4">{s.bookYourSession}</h1>
+    <div class="w-16 h-px bg-coral-300 mx-auto mb-6"></div>
+    <p class="text-stone-600 max-w-xl mx-auto mb-2">
+      {s.pickATime} <a href={phoneHref} class="text-coral-500 hover:underline">{phone}</a>.
+    </p>
+  </section>
+
+  {handle && bookableServices.length > 0 && (
+    <section class="max-w-5xl mx-auto px-6 mb-8">
+      <p class="text-center text-xs uppercase tracking-widest text-stone-500 mb-4">{s.chooseASession}</p>
+      <div class="flex flex-wrap justify-center gap-2" role="tablist">
+        {bookableServices.map((svc, i) => (
+          <button
+            type="button"
+            data-link={`${handle}/${svc.bookingSlug}`}
+            class:list={[
+              'service-pick px-4 py-2 text-sm rounded-full border transition',
+              i === 0
+                ? 'bg-coral-400 text-white border-coral-400'
+                : 'bg-stone-50 text-stone-700 border-stone-300 hover:border-coral-300',
+            ]}
+          >
+            {svc.name} <span class="opacity-70">· {svc.price}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {handle ? (
+    <section class="max-w-5xl mx-auto px-4 pb-20">
+      <div id="cal-embed" class="bg-stone-50 rounded-sm border border-stone-200 overflow-hidden" style="min-width:320px;height:700px;"></div>
+      <script is:inline define:vars={{ calLink, firstSlug: bookableServices[0]?.bookingSlug ?? '' }}>
+        (function (C, A, L) {
+          let p = function (a, ar) { a.q.push(ar); };
+          let d = C.document;
+          C.Cal = C.Cal || function () {
+            let cal = C.Cal;
+            let ar = arguments;
+            if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; }
+            if (ar[0] === L) {
+              const api = function () { p(api, arguments); };
+              const namespace = ar[1];
+              api.q = api.q || [];
+              if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else { p(cal, ar); }
+              return;
+            }
+            p(cal, ar);
+          };
+        })(window, "https://app.cal.com/embed/embed.js", "init");
+
+        Cal("init", "spring", { origin: "https://cal.com" });
+
+        // If ?service=<slug> is present and matches a button, preselect it.
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get("service");
+        const buttons = Array.from(document.querySelectorAll(".service-pick"));
+        let initialBtn = buttons[0];
+        if (requested) {
+          const match = buttons.find((b) => {
+            const link = b.getAttribute("data-link") || "";
+            return link.endsWith("/" + requested);
+          });
+          if (match) initialBtn = match;
+        }
+        if (initialBtn && initialBtn !== buttons[0]) {
+          buttons.forEach((b) => b.classList.remove("bg-coral-400", "text-white", "border-coral-400"));
+          buttons.forEach((b) => b.classList.add("bg-stone-50", "text-stone-700", "border-stone-300"));
+          initialBtn.classList.remove("bg-stone-50", "text-stone-700", "border-stone-300");
+          initialBtn.classList.add("bg-coral-400", "text-white", "border-coral-400");
+        }
+        const initialLink = initialBtn
+          ? initialBtn.getAttribute("data-link")
+          : (firstSlug ? `${calLink}/${firstSlug}` : calLink);
+
+        Cal.ns.spring("inline", { elementOrSelector: "#cal-embed", calLink: initialLink, config: { layout: "month_view" } });
+        Cal.ns.spring("ui", { theme: "light", styles: { branding: { brandColor: "#ED8569" } }, hideEventTypeDetails: false, layout: "month_view" });
+
+        document.querySelectorAll(".service-pick").forEach((btn) => {
+          btn.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            document.querySelectorAll(".service-pick").forEach((b) => b.classList.remove("bg-coral-400", "text-white", "border-coral-400"));
+            document.querySelectorAll(".service-pick").forEach((b) => b.classList.add("bg-stone-50", "text-stone-700", "border-stone-300"));
+            btn.classList.remove("bg-stone-50", "text-stone-700", "border-stone-300");
+            btn.classList.add("bg-coral-400", "text-white", "border-coral-400");
+            const link = btn.getAttribute("data-link");
+            const target = document.getElementById("cal-embed");
+            if (target) target.innerHTML = "";
+            Cal.ns.spring("inline", { elementOrSelector: "#cal-embed", calLink: link, config: { layout: "month_view" } });
+          });
+        });
+      </script>
+      <noscript>
+        <p class="text-center text-stone-600 mt-6">{s.bookingNoScript} <a href={phoneHref} class="text-coral-500 hover:underline">{phone}</a>.</p>
+      </noscript>
+    </section>
+  ) : (
+    <section class="max-w-2xl mx-auto px-6 pb-20 text-center">
+      <div class="bg-stone-100 rounded-sm p-10">
+        <p class="text-stone-600 mb-6 leading-relaxed">{s.onlineBookingComingSoon}</p>
+        <a href={phoneHref} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block">
+          {s.callPhone(phone)}
+        </a>
+      </div>
+    </section>
+  )}
+
+  <section class="bg-stone-100 py-12">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <p class="text-stone-600 mb-4">{s.preferToTalk}</p>
+      <a href={phoneHref} class="text-coral-500 hover:text-coral-600 tracking-wider uppercase text-sm">{s.callPhone(phone)} →</a>
+    </div>
+  </section>
+</BaseLayout>

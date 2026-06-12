@@ -1,0 +1,306 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Reviews from '../components/Reviews.astro';
+import SectionDivider from '../components/SectionDivider.astro';
+import { reader, renderMarkdoc } from '../lib/reader';
+import { type Locale, t, hasFr, strings, localePath } from '../lib/i18n';
+import { isActiveNow } from '../lib/active-window';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const home = await reader.singletons.home.read();
+const site = await reader.singletons.site.read();
+
+const allServices = await reader.collections.services.all();
+const featured = allServices
+  .filter(svc => svc.entry.featured)
+  .map(svc => {
+    const e: any = svc.entry;
+    const saleActive = !!(e.salePrice ?? '').trim() && isActiveNow({
+      active: true,
+      startsAt: e.saleStartsAt,
+      endsAt: e.saleEndsAt,
+    });
+    return {
+      slug: svc.slug,
+      name: locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug),
+      price: svc.entry.price,
+      salePrice: saleActive ? (e.salePrice ?? '').trim() : '',
+      saleNote: saleActive
+        ? (locale === 'fr' ? (e.saleNoteFr ?? '').trim() || (e.saleNoteEn ?? '').trim() : (e.saleNoteEn ?? '').trim())
+        : '',
+      order: svc.entry.order ?? 999,
+      image: svc.entry.image,
+    };
+  })
+  .sort((a, b) => a.order - b.order)
+  .slice(0, 3);
+
+const allPromos = await reader.collections.promotions.all();
+const promos = await Promise.all(
+  allPromos
+    .filter(p => isActiveNow({
+      active: p.entry.active,
+      startsAt: (p.entry as any).startsAt,
+      endsAt: (p.entry as any).endsAt,
+    }))
+    .slice(0, 3)
+    .map(async p => ({
+      slug: p.slug,
+      title: locale === 'fr' && p.entry.titleFr ? p.entry.titleFr : titleFromSlug(p.slug),
+      tag: t(p.entry, 'tag', locale, p.entry.tagEn ?? ''),
+      ctaLabel: t(p.entry, 'ctaLabel', locale, 'Call Now'),
+      ctaHref: p.entry.ctaHref,
+      image: p.entry.image,
+      bodyHtml: locale === 'fr' && p.entry.bodyFr
+        ? `<p>${escapeHtml(p.entry.bodyFr)}</p>`
+        : await renderMarkdoc(p.entry.bodyEn),
+      missingFr: locale === 'fr' && !p.entry.bodyFr?.trim(),
+    }))
+);
+
+function titleFromSlug(slug: string): string {
+  return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const heroImage = home?.heroImage;
+const heroImagesRaw = (home as any)?.heroImages as (string | null | undefined)[] | undefined;
+const heroSlides = (heroImagesRaw ?? [])
+  .map((s) => (typeof s === 'string' ? s.trim() : ''))
+  .filter((s): s is string => !!s);
+const fallbackSlides = heroImage ? [heroImage] : [];
+const slides = heroSlides.length > 0 ? heroSlides : fallbackSlides;
+const heroIntervalMs = Math.max(2, Math.min(60, Number((home as any)?.heroIntervalSeconds ?? 6))) * 1000;
+const storyImage = home?.storyImage;
+
+const heroEyebrow = t(home, 'heroEyebrow', locale, 'Welcome to our');
+const heroTitle = t(home, 'heroTitle', locale, 'Spring Massage Therapy');
+const heroBody = t(home, 'heroBody', locale, '');
+const ctaPrimary = t(home, 'ctaPrimary', locale, s.bookSession);
+const ctaSecondary = t(home, 'ctaSecondary', locale, s.seeFullMenu);
+const ctaPrimaryHref = home?.ctaPrimaryHref ?? '/book';
+const ctaSecondaryHref = home?.ctaSecondaryHref ?? '/services';
+
+const storyEyebrow = t(home, 'storyEyebrow', locale, s.aHiddenGem);
+const storyTitle = t(home, 'storyTitle', locale, 'The yellow little castle');
+const storyBody = t(home, 'storyBody', locale, '');
+
+const showFrFallbackNotice = locale === 'fr' && (
+  !hasFr(home, 'heroBody') || !hasFr(home, 'storyBody')
+);
+
+const titleStr = locale === 'fr'
+  ? 'Spring Massage Therapy Montréal — Massothérapie par Zarah Bellamy'
+  : 'Spring Massage Therapy Montréal — Massage by Zarah Bellamy';
+const descStr = locale === 'fr'
+  ? site?.defaultDescriptionFr
+  : site?.defaultDescriptionEn;
+---
+<BaseLayout
+  locale={locale}
+  title={titleStr}
+  description={descStr}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    {slides.length > 0 ? (
+      <>
+        <div
+          class="absolute inset-0"
+          data-hero-slideshow
+          data-interval={heroIntervalMs}
+        >
+          {slides.map((src, i) => (
+            <img
+              src={src}
+              alt=""
+              class:list={[
+                'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out',
+                i === 0 ? 'opacity-100' : 'opacity-0',
+              ]}
+              data-hero-slide
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          ))}
+        </div>
+        <div class="absolute inset-0 bg-stone-50/80 backdrop-blur-[1px]"></div>
+      </>
+    ) : (
+      <div class="absolute inset-0 bg-gradient-to-b from-stone-100 via-stone-50 to-stone-50"></div>
+    )}
+    <div class="relative max-w-5xl mx-auto px-6 py-24 md:py-32 text-center">
+      <p class="font-script text-coral-400 text-2xl md:text-3xl mb-3">{heroEyebrow}</p>
+      <h1 class="font-serif text-4xl md:text-6xl tracking-wide mb-6 text-stone-700">
+        {heroTitle}
+      </h1>
+      <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
+      <p class="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed italic whitespace-pre-line">
+        {heroBody}
+      </p>
+      {showFrFallbackNotice && (
+        <p class="mt-6 text-xs text-stone-500 italic">{s.translationComingSoon}</p>
+      )}
+      <div class="mt-10 flex flex-wrap gap-4 justify-center">
+        <a href={localePath(ctaPrimaryHref, locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
+          {ctaPrimary}
+        </a>
+        <a href={localePath(ctaSecondaryHref, locale)} class="border border-stone-300 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
+          {ctaSecondary}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <SectionDivider />
+  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <p class="font-script text-coral-400 text-2xl mb-2">{storyEyebrow}</p>
+      <h2 class="font-serif text-3xl md:text-4xl mb-6">{storyTitle}</h2>
+      <div class="text-stone-600 leading-relaxed mb-6 whitespace-pre-line">{storyBody}</div>
+      <a href={localePath('/about', locale)} class="text-coral-500 hover:text-coral-600 tracking-wider uppercase text-sm">
+        {s.readMore}
+      </a>
+    </div>
+    <div class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
+      {storyImage ? (
+        <img src={storyImage} alt="The studio" class="w-full h-full object-cover" />
+      ) : (
+        <span>Photo</span>
+      )}
+    </div>
+  </section>
+
+  <!-- Featured services -->
+  {featured.length > 0 && (
+    <section class="bg-stone-100 py-20">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <p class="font-script text-coral-400 text-2xl mb-2">{s.pricingPlan}</p>
+          <h2 class="font-serif text-3xl md:text-4xl">{s.servicesAndPricing}</h2>
+          <div class="w-16 h-px bg-coral-300 mx-auto mt-4"></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {featured.map(svc => (
+            <div class="bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 transition flex flex-col">
+              {svc.image && (
+                <div class="aspect-[4/3] overflow-hidden">
+                  <img src={svc.image} alt="" class="w-full h-full object-cover" />
+                </div>
+              )}
+              <div class="p-8 text-center flex-1 flex flex-col justify-center">
+                <h3 class="font-serif text-2xl mb-2 text-stone-700">{svc.name}</h3>
+                {svc.salePrice ? (
+                  <div class="my-4">
+                    <div class="font-serif text-xl text-stone-400 line-through leading-none">{svc.price}</div>
+                    <div class="font-serif text-4xl text-coral-500 mt-1 leading-none">{svc.salePrice}</div>
+                    {svc.saleNote && (
+                      <div class="text-[10px] tracking-widest uppercase text-coral-500 mt-2">
+                        {svc.saleNote}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div class="font-serif text-4xl text-coral-500 my-4">{svc.price}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="text-center mt-10">
+          <a href={localePath('/services', locale)} class="border border-stone-400 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-sm px-8 py-3 rounded-full transition inline-block">
+            {s.seeFullMenu}
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Promotions -->
+  {promos.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 py-20">
+      <div class="text-center mb-12">
+        <p class="font-script text-coral-400 text-2xl mb-2">{s.giftToYourself}</p>
+        <h2 class="font-serif text-3xl md:text-4xl">{s.currentPromotions}</h2>
+        <div class="w-16 h-px bg-coral-300 mx-auto mt-4"></div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {promos.map(p => (
+          <article class="relative bg-stone-100 overflow-hidden flex flex-col">
+            {p.image && (
+              <div class="aspect-[16/9] overflow-hidden">
+                <img src={p.image} alt="" class="w-full h-full object-cover" />
+              </div>
+            )}
+            {p.tag && (
+              <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none" aria-hidden="true">
+                <span class="absolute top-6 -right-9 w-40 text-center bg-coral-400 text-white text-[10px] tracking-widest uppercase py-1 rotate-45 shadow-sm">
+                  {p.tag}
+                </span>
+              </div>
+            )}
+            <div class="p-8">
+              <h3 class="font-serif text-2xl text-stone-700 mb-3">{p.title}</h3>
+              {p.missingFr && (
+                <p class="text-xs text-stone-400 italic mb-2">{s.translationComingSoon}</p>
+              )}
+              <div class="text-stone-600 mb-6 prose prose-sm" set:html={p.bodyHtml}></div>
+              <a href={p.ctaHref} class="inline-block bg-coral-400 hover:bg-coral-500 text-white text-xs tracking-widest uppercase px-6 py-2 rounded-full transition">
+                {p.ctaLabel}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Reviews -->
+  <div class="bg-stone-100/60">
+    <Reviews
+      locale={locale}
+      carousel={true}
+      heading={s.kindWordsFromClients}
+      eyebrow={s.trustedByMontrealers}
+    />
+  </div>
+
+  <!-- CTA strip -->
+  <section class="bg-stone-700 text-stone-50">
+    <div class="max-w-4xl mx-auto px-6 py-20 text-center">
+      <p class="font-script text-coral-200 text-2xl mb-2">{s.ourSpecialOffer}</p>
+      <h2 class="font-serif text-3xl md:text-5xl mb-8 text-stone-50">{s.youOweYourself}</h2>
+      <a href={localePath('/book', locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block">
+        {s.makeAppointment}
+      </a>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      const root = document.querySelector('[data-hero-slideshow]');
+      if (!root) return;
+      const slides = root.querySelectorAll('[data-hero-slide]');
+      if (slides.length < 2) return;
+      const interval = Math.max(2000, Number(root.getAttribute('data-interval')) || 6000);
+      let current = 0;
+      const tick = function () {
+        const next = (current + 1) % slides.length;
+        slides[current].classList.remove('opacity-100');
+        slides[current].classList.add('opacity-0');
+        slides[next].classList.remove('opacity-0');
+        slides[next].classList.add('opacity-100');
+        current = next;
+      };
+      setInterval(tick, interval);
+    })();
+  </script>
+</BaseLayout>

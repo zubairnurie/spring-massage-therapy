@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reader } from '../lib/reader';
+import { type Locale, t, strings, localePath } from '../lib/i18n';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const contact = await reader.singletons.contactInfo.read();
+const phone = contact?.phone ?? '(579) 366-4118';
+const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
+const address = t(contact, 'address', locale, '2229 Hawarden, Montréal, Québec');
+const hours = t(contact, 'hours', locale, 'Mon–Sun · 8 AM – 9 PM');
+
+const titleStr = locale === 'fr'
+  ? 'Contact — Spring Massage Therapy Montréal'
+  : 'Contact — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? `Visitez Spring Massage Therapy au ${address}. Ouvert lun–dim de 8h à 21h. Appelez ${phone} pour réserver.`
+  : `Visit Spring Massage Therapy at ${address}. Open Mon–Sun 8 AM to 9 PM. Call ${phone} to book.`;
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr}>
+  <section class="max-w-4xl mx-auto px-6 py-20">
+    <div class="text-center mb-14">
+      <p class="font-script text-coral-400 text-2xl mb-2">{s.reachOut}</p>
+      <h1 class="font-serif text-4xl md:text-5xl mb-4">{s.getInTouch}</h1>
+      <div class="w-16 h-px bg-coral-300 mx-auto mb-6"></div>
+      <p class="text-stone-600 max-w-xl mx-auto">{s.getInTouchBody}</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-stone-100 p-8 text-center">
+        <h3 class="font-serif text-coral-500 text-xl mb-2">{s.call}</h3>
+        <a href={phoneHref} class="text-stone-700 hover:text-coral-500 transition">{phone}</a>
+      </div>
+      <div class="bg-stone-100 p-8 text-center">
+        <h3 class="font-serif text-coral-500 text-xl mb-2">{s.visit}</h3>
+        <p class="text-stone-700">{address}</p>
+      </div>
+      <div class="bg-stone-100 p-8 text-center">
+        <h3 class="font-serif text-coral-500 text-xl mb-2">{s.hoursLabel}</h3>
+        <p class="text-stone-700">{hours}</p>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <a href={localePath('/book', locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block">
+        {s.makeAppointment}
+      </a>
+    </div>
+  </section>
+</BaseLayout>

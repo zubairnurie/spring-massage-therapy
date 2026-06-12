@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/*
+ * Spring Massage Therapy — Design Tokens
+ *
+ * Inspired by:
+ *  - The studio's interior: warm wood, candle light, salt-lamp glow, soft beige walls
+ *  - The exterior: lush greens, lilac whites, the "yellow little castle" Tudor manor
+ *  - Asian-inflected decor: ink calligraphy, paper fans, Buddha statues
+ *
+ * Goal: warm, intimate, slightly old-world. Not spa-corporate. Not minimal-tech.
+ */
+@theme {
+  /* Brand palette — pulled from photos */
+  --color-coral-50:  #FDF1ED;
+  --color-coral-100: #FADDD3;
+  --color-coral-200: #F6BFAD;
+  --color-coral-300: #F2A088;
+  --color-coral-400: #ED8569;  /* primary CTA — close to original site coral */
+  --color-coral-500: #DD6E51;
+  --color-coral-600: #B95A41;
+
+  --color-moss-50:  #F2F4ED;
+  --color-moss-100: #E0E5D0;
+  --color-moss-200: #C2CCA5;
+  --color-moss-300: #97A879;
+  --color-moss-400: #6F814F;  /* leaf/garden green */
+  --color-moss-500: #54663A;
+  --color-moss-600: #3F4E2B;
+
+  --color-stone-50:  #FAF7F2;  /* page background — warm cream */
+  --color-stone-100: #F1ECE2;
+  --color-stone-200: #E2D9C9;
+  --color-stone-300: #C9BCA4;
+  --color-stone-400: #A89878;
+  --color-stone-500: #7C6E52;
+  --color-stone-600: #564A35;
+  --color-stone-700: #2E2A22;  /* near-black body text */
+
+  --color-amber-glow: #E8B07A;  /* salt-lamp warm glow */
+
+  /* Typography
+   * Cormorant Garamond — old-world serif, evokes the heritage manor
+   * Inter — clean, readable sans for body & UI
+   * Caveat — handwritten accent for "Gift to yourself..." style script lines
+   */
+  --font-serif: 'Cormorant Garamond', 'Droid Serif', Georgia, serif;
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
+  --font-script: 'Caveat', cursive;
+
+  /* Spacing rhythm — generous, unhurried */
+  --spacing-section: 6rem;
+}
+
+/* Smooth, calm baseline */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-stone-700);
+  background: var(--color-stone-50);
+  font-feature-settings: "ss01", "cv01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings inherit color by default — actual color is set per-section via
+ * Tailwind utilities (text-stone-700 in light areas, text-stone-50 in dark
+ * sections). This avoids global selectors fighting with Tailwind specificity.
+ */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.font-script {
+  font-family: var(--font-script);
+}

@@ -1,0 +1,282 @@
+---
+import { reader, renderMarkdoc, renderMarkdocText } from '../lib/reader';
+import { type Locale, strings } from '../lib/i18n';
+
+export interface Props {
+  /** UI locale for buttons, labels, etc. Reviews themselves stay in original language. */
+  locale?: Locale;
+  /** Limit to N reviews. Default: show all */
+  limit?: number;
+  /** Only show featured ones. Default: false (show all) */
+  featuredOnly?: boolean;
+  /** Show "Leave a review" CTA at the bottom. Default: true */
+  showCta?: boolean;
+  /** Section heading text. Default: localized "What clients say" */
+  heading?: string;
+  /** Eyebrow above heading. Default: localized "Kind words" */
+  eyebrow?: string;
+  /** Optional subtitle below heading */
+  subtitle?: string;
+  /** Render as horizontal carousel with dot nav. Default: false (grid) */
+  carousel?: boolean;
+}
+
+const {
+  locale = 'en',
+  limit,
+  featuredOnly = false,
+  showCta = true,
+  subtitle,
+  carousel = false,
+} = Astro.props;
+
+const s = strings(locale);
+const heading = Astro.props.heading ?? s.whatClientsSay;
+const eyebrow = Astro.props.eyebrow ?? s.kindWords;
+
+const contact = await reader.singletons.contactInfo.read();
+const googleReviewUrl = contact?.googleReviewUrl?.trim();
+const googleProfileUrl = contact?.googleProfileUrl?.trim();
+const googleRatingDisplay = contact?.googleRating?.trim() || '5.0';
+const googleCountDisplay = contact?.googleReviewCount ?? null;
+
+const all = await reader.collections.reviews.all();
+let reviews = await Promise.all(
+  all
+    .filter(r => featuredOnly ? r.entry.featured : true)
+    .map(async r => ({
+      slug: r.slug,
+      reviewer: r.slug,
+      rating: r.entry.rating ?? 5,
+      date: r.entry.date,
+      source: r.entry.source ?? 'google',
+      bodyHtml: await renderMarkdoc(r.entry.body),
+      bodyText: await renderMarkdocText(r.entry.body),
+    }))
+);
+
+reviews.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+if (limit) reviews = reviews.slice(0, limit);
+
+function displayName(slug: string): string {
+  return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(locale === 'fr' ? 'fr-CA' : 'en-CA', { year: 'numeric', month: 'long' });
+  } catch {
+    return iso;
+  }
+}
+
+function sourceLabel(source: string): string {
+  if (locale === 'fr') {
+    return ({ google: 'Google', yelp: 'Yelp', facebook: 'Facebook', 'in-person': 'En personne', other: '' } as Record<string, string>)[source] ?? '';
+  }
+  return ({ google: 'Google', yelp: 'Yelp', facebook: 'Facebook', 'in-person': 'In person', other: '' } as Record<string, string>)[source] ?? '';
+}
+
+// Aggregate rating for schema.org — based on what's actually on the site,
+// since publishing fake numbers in JSON-LD violates Google's guidelines.
+const avgRating = reviews.length > 0
+  ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+  : null;
+
+const aggregateRatingJsonLd = avgRating ? JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'MassageTherapy',
+  name: 'Spring Massage Therapy',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: avgRating,
+    reviewCount: reviews.length,
+    bestRating: 5,
+    worstRating: 1,
+  },
+  review: reviews.map(r => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: displayName(r.reviewer) },
+    reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
+    datePublished: r.date ?? undefined,
+    reviewBody: r.bodyText,
+  })),
+}) : null;
+
+// What the human sees — pulled from Keystatic, mirrors Google's totals.
+const displayRating = googleRatingDisplay;
+const displayCount = googleCountDisplay ?? reviews.length;
+---
+{reviews.length > 0 && (
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-center mb-12">
+      {eyebrow && <p class="font-script text-coral-400 text-2xl mb-2">{eyebrow}</p>}
+      {heading && <h2 class="font-serif text-3xl md:text-4xl">{heading}</h2>}
+      {heading && <div class="w-16 h-px bg-coral-300 mx-auto mt-4 mb-4"></div>}
+      <p class="text-stone-500 text-sm">
+        <span aria-hidden="true">{'★'.repeat(Math.round(Number(displayRating)))}</span>
+        <span class="ml-2">{s.averageFrom(displayRating, displayCount)}</span>
+        {googleProfileUrl && (
+          <>
+            {' '}·{' '}
+            <a href={googleProfileUrl} target="_blank" rel="noopener" class="text-coral-500 hover:underline">
+              {s.seeAllOnGoogle}
+            </a>
+          </>
+        )}
+      </p>
+      {subtitle && <p class="text-stone-600 mt-4 max-w-2xl mx-auto">{subtitle}</p>}
+    </div>
+
+    {carousel ? (
+      <div class="reviews-carousel relative">
+        <!-- Scroll viewport — snap-x ensures cards align cleanly when scrolling -->
+        <div
+          class="reviews-track flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4"
+          style="scrollbar-width: none; -ms-overflow-style: none;"
+          aria-roledescription="carousel"
+          aria-label="Client reviews"
+        >
+          {reviews.map((r, i) => (
+            <article
+              class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[40%] lg:w-[31%] bg-stone-50 border border-stone-200 p-6 flex flex-col"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Review ${i + 1} of ${reviews.length}`}
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-coral-400 tracking-tight" aria-label={`${r.rating} out of 5 stars`}>
+                  {'★'.repeat(r.rating)}<span class="text-stone-200">{'★'.repeat(5 - r.rating)}</span>
+                </span>
+                {sourceLabel(r.source) && (
+                  <span class="text-xs text-stone-400 uppercase tracking-widest ml-auto">{sourceLabel(r.source)}</span>
+                )}
+              </div>
+              <div class="text-stone-600 leading-relaxed italic mb-4 flex-1 prose prose-sm" set:html={r.bodyHtml}></div>
+              <div class="text-sm text-stone-500 pt-3 border-t border-stone-100 flex justify-between">
+                <span class="font-serif text-stone-700">— {displayName(r.reviewer)}</span>
+                {r.date && <span>{formatDate(r.date)}</span>}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <!-- Dot navigation -->
+        {reviews.length > 1 && (
+          <div class="reviews-dots flex justify-center gap-2 mt-6" role="tablist" aria-label="Choose review">
+            {reviews.map((_, i) => (
+              <button
+                type="button"
+                class="reviews-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-coral-300 transition"
+                data-index={i}
+                aria-label={`Go to review ${i + 1}`}
+                aria-current={i === 0 ? 'true' : 'false'}
+              ></button>
+            ))}
+          </div>
+        )}
+
+        <!-- Hide native scrollbar without breaking scroll -->
+        <style>
+          .reviews-track::-webkit-scrollbar { display: none; }
+        </style>
+
+        <script is:inline>
+          (function () {
+            document.querySelectorAll('.reviews-carousel').forEach((root) => {
+              const track = root.querySelector('.reviews-track');
+              const dots = root.querySelectorAll('.reviews-dot');
+              if (!track || dots.length === 0) return;
+
+              const cards = Array.from(track.children);
+
+              function activateDot(idx) {
+                dots.forEach((d, i) => {
+                  if (i === idx) {
+                    d.classList.add('bg-coral-400', 'w-6');
+                    d.classList.remove('bg-stone-300', 'w-2.5');
+                    d.setAttribute('aria-current', 'true');
+                  } else {
+                    d.classList.remove('bg-coral-400', 'w-6');
+                    d.classList.add('bg-stone-300', 'w-2.5');
+                    d.setAttribute('aria-current', 'false');
+                  }
+                });
+              }
+
+              dots.forEach((dot) => {
+                dot.addEventListener('click', () => {
+                  const idx = Number(dot.getAttribute('data-index'));
+                  const target = cards[idx];
+                  if (!target) return;
+                  // Scroll the card to the start of the visible track
+                  const offset = target.offsetLeft - track.offsetLeft;
+                  track.scrollTo({ left: offset, behavior: 'smooth' });
+                });
+              });
+
+              // Sync the active dot to whichever card is most centered
+              let scrollTimer;
+              track.addEventListener('scroll', () => {
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                  const trackRect = track.getBoundingClientRect();
+                  const trackCenter = trackRect.left + trackRect.width / 2;
+                  let closestIdx = 0;
+                  let closestDist = Infinity;
+                  cards.forEach((card, i) => {
+                    const r = card.getBoundingClientRect();
+                    const cardCenter = r.left + r.width / 2;
+                    const dist = Math.abs(cardCenter - trackCenter);
+                    if (dist < closestDist) {
+                      closestDist = dist;
+                      closestIdx = i;
+                    }
+                  });
+                  activateDot(closestIdx);
+                }, 80);
+              });
+
+              activateDot(0);
+            });
+          })();
+        </script>
+      </div>
+    ) : (
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {reviews.map(r => (
+          <article class="bg-stone-50 border border-stone-200 p-6 flex flex-col">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-coral-400 tracking-tight" aria-label={`${r.rating} out of 5 stars`}>
+                {'★'.repeat(r.rating)}<span class="text-stone-200">{'★'.repeat(5 - r.rating)}</span>
+              </span>
+              {sourceLabel(r.source) && (
+                <span class="text-xs text-stone-400 uppercase tracking-widest ml-auto">{sourceLabel(r.source)}</span>
+              )}
+            </div>
+            <div class="text-stone-600 leading-relaxed italic mb-4 flex-1 prose prose-sm" set:html={r.bodyHtml}></div>
+            <div class="text-sm text-stone-500 pt-3 border-t border-stone-100 flex justify-between">
+              <span class="font-serif text-stone-700">— {displayName(r.reviewer)}</span>
+              {r.date && <span>{formatDate(r.date)}</span>}
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {showCta && (googleReviewUrl || googleProfileUrl) && (
+      <div class="text-center mt-12 flex flex-wrap gap-4 justify-center">
+        {googleReviewUrl && (
+          <a href={googleReviewUrl} target="_blank" rel="noopener" class="border border-stone-300 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-sm px-6 py-2.5 rounded-full transition">
+            {s.leaveReview}
+          </a>
+        )}
+      </div>
+    )}
+
+    {aggregateRatingJsonLd && (
+      <script type="application/ld+json" set:html={aggregateRatingJsonLd}></script>
+    )}
+  </section>
+)}

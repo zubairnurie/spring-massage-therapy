@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Reviews from '../components/Reviews.astro';
+import { reader } from '../lib/reader';
+import { type Locale, strings, localePath } from '../lib/i18n';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const contact = await reader.singletons.contactInfo.read();
+const phone = contact?.phone ?? '(579) 366-4118';
+const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
+
+const titleStr = locale === 'fr'
+  ? 'Avis — Spring Massage Therapy Montréal'
+  : 'Reviews — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? "Lisez ce que nos client·es disent de Spring Massage Therapy à Montréal. De vrais avis de personnes qui ont vécu l'expérience."
+  : "Read what clients are saying about Spring Massage Therapy in Montréal. Real reviews from people who've experienced the studio first-hand.";
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr}>
+  <section class="max-w-3xl mx-auto px-6 pt-20 pb-6 text-center">
+    <p class="font-script text-coral-400 text-2xl mb-2">{s.inTheirOwnWords}</p>
+    <h1 class="font-serif text-4xl md:text-5xl mb-4">{s.clientReviews}</h1>
+    <div class="w-16 h-px bg-coral-300 mx-auto mb-6"></div>
+    <p class="text-stone-600 leading-relaxed">{s.reviewsIntro}</p>
+  </section>
+
+  <Reviews locale={locale} showCta={true} eyebrow="" heading="" />
+
+  <section class="bg-stone-700 text-stone-50">
+    <div class="max-w-4xl mx-auto px-6 py-20 text-center">
+      <p class="font-script text-coral-200 text-2xl mb-2">{s.youOweYourself}</p>
+      <h2 class="font-serif text-3xl md:text-5xl mb-8 text-stone-50">{s.comeAndUnwind}</h2>
+      <a href={localePath('/book', locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block mr-2">
+        {s.makeAppointment}
+      </a>
+      <a href={phoneHref} class="text-stone-200 tracking-wider uppercase text-sm hover:text-coral-200 inline-block px-4">
+        {s.orCall(phone)}
+      </a>
+    </div>
+  </section>
+</BaseLayout>

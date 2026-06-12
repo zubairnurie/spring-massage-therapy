@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reader } from '../lib/reader';
+import { type Locale, t, hasFr, strings, localePath } from '../lib/i18n';
+
+export interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const s = strings(locale);
+
+const about = await reader.singletons.about.read();
+const portrait = about?.zarahPortrait;
+const studio1 = about?.studioImage1;
+const studio2 = about?.studioImage2;
+const mapAddress = about?.mapAddress ?? '2229 Hawarden, Montreal, QC';
+const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
+
+const zarahBio = t(about, 'zarahBio', locale, '');
+const studioBody = t(about, 'studioBody', locale, '');
+const showFrFallbackNotice = locale === 'fr' && (
+  !hasFr(about, 'zarahBio') || !hasFr(about, 'studioBody')
+);
+
+const titleStr = locale === 'fr'
+  ? 'À propos de Zarah & du studio — Spring Massage Therapy'
+  : 'About Zarah Bellamy & The Studio — Spring Massage Therapy Montréal';
+const descStr = locale === 'fr'
+  ? 'La massothérapeute Zarah Bellamy accueille chaque client·e avec compassion et attention. Située dans un manoir Tudor patrimonial au 2229 Hawarden, Montréal — un trésor caché au cœur de la ville.'
+  : 'Massage therapist Zarah Bellamy welcomes every client with compassion and care. Located in a heritage Tudor manor at 2229 Hawarden, Montréal — a hidden gem in the heart of the city.';
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr}>
+  <!-- About Zarah -->
+  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-[1fr_1.4fr] gap-12 items-start">
+    <div class="aspect-[3/4] bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic order-2 md:order-1">
+      {portrait ? (
+        <img src={portrait} alt="Zarah Bellamy" class="w-full h-full object-cover" />
+      ) : (
+        <span>Portrait</span>
+      )}
+    </div>
+    <div class="order-1 md:order-2">
+      <p class="font-script text-coral-400 text-2xl mb-2">{s.aboutZarah}</p>
+      <h1 class="font-serif text-4xl md:text-5xl mb-2">Zarah Bellamy</h1>
+      <p class="text-stone-500 tracking-widest uppercase text-sm mb-6">{s.massageTherapist}</p>
+      {showFrFallbackNotice && (
+        <p class="text-xs text-stone-500 italic mb-4">{s.translationComingSoon}</p>
+      )}
+      <div class="space-y-4 text-stone-600 leading-relaxed whitespace-pre-line">
+        {zarahBio}
+      </div>
+      <p class="italic text-stone-500 mt-6">{s.finalNote}</p>
+    </div>
+  </section>
+
+  <!-- About the Studio -->
+  <section class="bg-stone-100 py-20">
+    <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <p class="font-script text-coral-400 text-2xl mb-2">{s.aPeacefulRetreat}</p>
+        <h2 class="font-serif text-3xl md:text-4xl mb-6">{s.aboutTheStudio}</h2>
+        <div class="space-y-4 text-stone-600 leading-relaxed whitespace-pre-line">
+          {studioBody}
+        </div>
+        <p class="italic text-stone-500 mt-6">{s.hiddenGem}</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+          {studio1 ? <img src={studio1} alt="Studio interior" class="w-full h-full object-cover" /> : <span>Studio</span>}
+        </div>
+        <div class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+          {studio2 ? <img src={studio2} alt="Courtyard" class="w-full h-full object-cover" /> : <span>Courtyard</span>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Find Us / Map -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <div class="text-center mb-10">
+      <p class="font-script text-coral-400 text-2xl mb-2">{s.findUs}</p>
+      <h2 class="font-serif text-3xl md:text-4xl">{mapAddress}</h2>
+      <p class="text-stone-500 mt-2">{s.welcome} / {s.welcomeFr}</p>
+    </div>
+    <div class="rounded-sm overflow-hidden border border-stone-200 aspect-[16/9]">
+      <iframe
+        src={mapSrc}
+        width="100%"
+        height="100%"
+        style="border:0;"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Spring Massage Therapy location"
+      ></iframe>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-stone-700 text-stone-50">
+    <div class="max-w-4xl mx-auto px-6 py-20 text-center">
+      <p class="font-script text-coral-200 text-2xl mb-2">{s.youOweYourself}</p>
+      <h2 class="font-serif text-3xl md:text-5xl mb-8 text-stone-50">{s.comeAndUnwind}</h2>
+      <a href={localePath('/book', locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-10 py-4 rounded-full transition inline-block">
+        {s.makeAppointment}
+      </a>
+    </div>
+  </section>
+</BaseLayout>
