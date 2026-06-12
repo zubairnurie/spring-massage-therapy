@@ -9,8 +9,14 @@ const s = strings(locale);
 
 const about = await reader.singletons.about.read();
 const portrait = about?.zarahPortrait;
+const portraitAlt = (((about as any)?.zarahPortraitAlt ?? '') as string).trim()
+  || 'Zarah Bellamy, massage therapist at Spring Massage Therapy';
 const studio1 = about?.studioImage1;
+const studio1Alt = (((about as any)?.studioImage1Alt ?? '') as string).trim()
+  || 'Spring Massage Therapy studio interior';
 const studio2 = about?.studioImage2;
+const studio2Alt = (((about as any)?.studioImage2Alt ?? '') as string).trim()
+  || 'Spring Massage Therapy studio courtyard';
 const mapAddress = about?.mapAddress ?? '2229 Hawarden, Montreal, QC';
 const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
 
@@ -32,7 +38,7 @@ const descStr = locale === 'fr'
   <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-[1fr_1.4fr] gap-12 items-start">
     <div class="aspect-[3/4] bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic order-2 md:order-1">
       {portrait ? (
-        <img src={portrait} alt="Zarah Bellamy" class="w-full h-full object-cover" />
+        <img src={portrait} alt={portraitAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
       ) : (
         <span>Portrait</span>
       )}
@@ -64,10 +70,10 @@ const descStr = locale === 'fr'
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
-          {studio1 ? <img src={studio1} alt="Studio interior" class="w-full h-full object-cover" /> : <span>Studio</span>}
+          {studio1 ? <img src={studio1} alt={studio1Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Studio</span>}
         </div>
         <div class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
-          {studio2 ? <img src={studio2} alt="Courtyard" class="w-full h-full object-cover" /> : <span>Courtyard</span>}
+          {studio2 ? <img src={studio2} alt={studio2Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Courtyard</span>}
         </div>
       </div>
     </div>

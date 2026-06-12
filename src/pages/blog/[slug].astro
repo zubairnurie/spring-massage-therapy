@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const postFiles = import.meta.glob<{
+    frontmatter: { title: string; description: string; publishedAt: string };
+    Content: any;
+  }>('../../content/blog/*.md', { eager: true });
+
+  return Object.entries(postFiles).map(([file, mod]) => ({
+    params: { slug: file.split('/').pop()?.replace('.md', '') ?? '' },
+    props: { mod },
+  }));
+}
+
+const { mod } = Astro.props;
+const { title, description, publishedAt } = mod.frontmatter;
+const Content = mod.Content;
+
+const siteUrl = 'https://springmassagetherapy.ca';
+const slug = Astro.url.pathname.replace(/\/$/, '');
+const canonicalUrl = siteUrl + slug;
+
+const formattedDate = new Date(publishedAt).toLocaleDateString('en-CA', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const isoDate = new Date(publishedAt).toISOString().split('T')[0];
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  datePublished: isoDate,
+  url: canonicalUrl,
+  author: {
+    '@type': 'Person',
+    name: 'Zarah Bellamy',
+    url: siteUrl + '/about',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Spring Massage Therapy',
+    url: siteUrl,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalUrl,
+  },
+});
+---
+<BaseLayout title={`${title} | Spring Massage Therapy`} description={description}>
+  <script type="application/ld+json" set:html={jsonLd}></script>
+
+  <article class="max-w-2xl mx-auto px-6 py-20">
+    <header class="mb-12">
+      <p class="text-xs tracking-widest uppercase text-stone-400 mb-4">
+        <a href="/blog" class="hover:text-coral-400 transition">Blog</a>
+        <span class="mx-2">·</span>
+        <time datetime={isoDate}>{formattedDate}</time>
+      </p>
+      <h1 class="font-serif text-4xl md:text-5xl text-stone-800 leading-tight mb-6">{title}</h1>
+      <p class="text-stone-500 text-lg leading-relaxed">{description}</p>
+      <div class="w-16 h-px bg-coral-300 mt-8"></div>
+    </header>
+
+    <div class="prose prose-stone prose-lg max-w-none
+      prose-headings:font-serif prose-headings:text-stone-800
+      prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+      prose-p:text-stone-600 prose-p:leading-relaxed
+      prose-strong:text-stone-700 prose-strong:font-medium
+      prose-a:text-coral-500 prose-a:no-underline hover:prose-a:underline
+      prose-li:text-stone-600">
+      <Content />
+    </div>
+
+    <footer class="mt-16 pt-10 border-t border-stone-200">
+      <div class="bg-stone-50 rounded-lg px-8 py-8 text-center">
+        <p class="font-serif text-2xl text-stone-700 mb-2">Ready to book a session?</p>
+        <p class="text-stone-500 text-sm mb-6">Spring Massage Therapy · Montréal · Open every day 8 AM – 9 PM</p>
+        <a
+          href="/book"
+          class="inline-block bg-coral-400 hover:bg-coral-500 text-white text-sm tracking-wider uppercase px-8 py-3 rounded-full transition"
+        >
+          Book Now
+        </a>
+      </div>
+      <p class="text-center mt-8">
+        <a href="/blog" class="text-sm text-stone-400 hover:text-coral-400 transition tracking-wide">← Back to blog</a>
+      </p>
+    </footer>
+  </article>
+</BaseLayout>

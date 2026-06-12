@@ -17,14 +17,23 @@ export interface LocalBusinessInput {
   instagram?: string | null;
 }
 
+/**
+ * Parse a free-form address like "2229 Hawarden, Montréal, Québec" into
+ * structured parts. Falls back to sane defaults for the practice if parts
+ * are missing.
+ */
+function parseAddress(raw: string | undefined) {
+  const parts = (raw ?? '').split(',').map(s => s.trim()).filter(Boolean);
+  return {
+    street: parts[0] || '2229 Hawarden',
+    city: parts[1] || 'Montréal',
+    region: parts[2] || 'Québec',
+  };
+}
+
 export function buildLocalBusinessJsonLd(input: LocalBusinessInput): string {
   const sameAs = [input.facebook, input.instagram].filter(Boolean);
-
-  // Address parsing — assume "<street>, <city>, <region>" format with sane fallbacks.
-  const parts = (input.address ?? '').split(',').map(s => s.trim());
-  const street = parts[0] || '';
-  const city = parts[1] || 'Montréal';
-  const region = parts[2] || 'Quebec';
+  const { street, city, region } = parseAddress(input.address);
 
   const data: Record<string, any> = {
     '@context': 'https://schema.org',
@@ -64,6 +73,13 @@ export function buildLocalBusinessJsonLd(input: LocalBusinessInput): string {
 }
 
 /**
+ * Default description used in JSON-LD when the editor hasn't set one.
+ * Long-form, keyword-rich for local SEO.
+ */
+const FALLBACK_DESCRIPTION_EN =
+  'Spring Massage Therapy is a peaceful retreat in Montréal offering Swedish, deep tissue, hot stone, facial, foot, and couples massage by Zarah Bellamy. Located in a heritage Tudor manor at 2229 Hawarden, open every day 8 AM to 9 PM. Walk-ins and online booking welcome.';
+
+/**
  * Convenience: read all the singletons we need and produce the JSON-LD string.
  */
 export async function buildJsonLdFromContent(absoluteUrl: string): Promise<string> {
@@ -76,12 +92,19 @@ export async function buildJsonLdFromContent(absoluteUrl: string): Promise<strin
     ? new URL(site.socialImage, absoluteUrl).toString()
     : null;
 
+  // Prefer the editor-set EN description; if blank, use the keyword-rich fallback.
+  const description = (site?.defaultDescriptionEn ?? '').trim() || FALLBACK_DESCRIPTION_EN;
+
+  // Use the EN address (structured fields aren't translated).
+  const address = (contact?.addressEn ?? '').trim() || '2229 Hawarden, Montréal, Québec';
+  const hours = (contact?.hoursEn ?? '').trim();
+
   return buildLocalBusinessJsonLd({
     url: absoluteUrl,
-    description: site?.defaultDescription ?? 'Massage therapy in Montréal.',
+    description,
     phone: contact?.phone,
-    address: contact?.address,
-    hours: contact?.hours,
+    address,
+    hours,
     priceRange: site?.priceRange ?? '$$',
     socialImage,
     facebook: contact?.facebook ?? null,

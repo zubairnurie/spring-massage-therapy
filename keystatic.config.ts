@@ -58,16 +58,28 @@ export default config({
           directory: 'public/images/hero',
           publicPath: '/images/hero/',
         }),
+        heroImageAlt: fields.text({
+          label: 'Hero image alt text',
+          description: 'Describes the fallback hero image for screen readers and SEO. Pre-filled with a sensible default — feel free to refine.',
+          defaultValue: 'Spring Massage Therapy studio in Montréal',
+        }),
         heroImages: fields.array(
-          fields.image({
-            label: 'Slideshow image',
-            directory: 'public/images/hero',
-            publicPath: '/images/hero/',
+          fields.object({
+            image: fields.image({
+              label: 'Slideshow image',
+              directory: 'public/images/hero',
+              publicPath: '/images/hero/',
+            }),
+            alt: fields.text({
+              label: 'Alt text',
+              description: 'Describes this image for screen readers and SEO.',
+              defaultValue: 'Spring Massage Therapy studio in Montréal',
+            }),
           }),
           {
             label: 'Hero slideshow images',
             description: 'Add 2+ images to enable a crossfading slideshow. With 0 or 1 images, the single Hero background image above is used.',
-            itemLabel: (props) => props.value?.filename ?? 'Slideshow image',
+            itemLabel: (props) => props.fields.image.value?.filename ?? props.fields.alt.value ?? 'Slideshow image',
           },
         ),
         heroIntervalSeconds: fields.integer({
@@ -102,6 +114,11 @@ export default config({
           directory: 'public/images/home',
           publicPath: '/images/home/',
         }),
+        storyImageAlt: fields.text({
+          label: 'Story image alt text',
+          description: 'Describes the story image for screen readers and SEO.',
+          defaultValue: 'Heritage Tudor manor housing Spring Massage Therapy',
+        }),
       },
     }),
     about: singleton({
@@ -113,6 +130,11 @@ export default config({
           directory: 'public/images/about',
           publicPath: '/images/about/',
         }),
+        zarahPortraitAlt: fields.text({
+          label: 'Portrait alt text',
+          description: 'Describes the portrait for screen readers and SEO.',
+          defaultValue: 'Zarah Bellamy, massage therapist at Spring Massage Therapy',
+        }),
         zarahBioEn: fields.text({ label: 'Zarah\'s bio — EN', multiline: true, defaultValue: '' }),
         zarahBioFr: fields.text({ label: 'Zarah\'s bio — FR', multiline: true, defaultValue: '' }),
         studioBodyEn: fields.text({ label: 'About the studio — EN', multiline: true, defaultValue: '' }),
@@ -122,10 +144,18 @@ export default config({
           directory: 'public/images/about',
           publicPath: '/images/about/',
         }),
+        studioImage1Alt: fields.text({
+          label: 'Studio photo 1 alt text',
+          defaultValue: 'Spring Massage Therapy studio interior',
+        }),
         studioImage2: fields.image({
           label: 'Studio photo 2 (shared)',
           directory: 'public/images/about',
           publicPath: '/images/about/',
+        }),
+        studioImage2Alt: fields.text({
+          label: 'Studio photo 2 alt text',
+          defaultValue: 'Spring Massage Therapy studio courtyard',
         }),
         mapAddress: fields.text({
           label: 'Map address',
@@ -261,6 +291,11 @@ export default config({
           directory: 'public/images/services',
           publicPath: '/images/services/',
         }),
+        imageAlt: fields.text({
+          label: 'Photo alt text',
+          description: 'Describes this service photo for screen readers and SEO. Leave blank to use the service name.',
+          defaultValue: '',
+        }),
         descriptionFr: fields.text({ label: 'Description — FR', multiline: true, defaultValue: '' }),
         descriptionEn: fields.markdoc({ label: 'Description — EN' }),
       },
@@ -298,6 +333,11 @@ export default config({
           directory: 'public/images/promotions',
           publicPath: '/images/promotions/',
         }),
+        imageAlt: fields.text({
+          label: 'Photo alt text',
+          description: 'Describes this promo photo for screen readers and SEO. Leave blank to use the promo title.',
+          defaultValue: '',
+        }),
         bodyFr: fields.text({ label: 'Body — FR', multiline: true, defaultValue: '' }),
         bodyEn: fields.markdoc({ label: 'Body — EN' }),
       },
@@ -321,6 +361,11 @@ export default config({
         }),
         order: fields.number({ label: 'Display order', defaultValue: 0 }),
         image: fields.image({ label: 'Image (shared)', directory: 'public/images/tiles', publicPath: '/images/tiles/' }),
+        imageAlt: fields.text({
+          label: 'Image alt text',
+          description: 'Describes this tile image for screen readers and SEO. Leave blank to use the tile title.',
+          defaultValue: '',
+        }),
         bodyFr: fields.text({ label: 'Body — FR', multiline: true, defaultValue: '' }),
         bodyEn: fields.markdoc({ label: 'Body — EN' }),
       },

@@ -35,6 +35,8 @@ const featured = allServices
         : '',
       order: svc.entry.order ?? 999,
       image: svc.entry.image,
+      imageAlt: ((e.imageAlt ?? '') as string).trim()
+        || (locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug)),
     };
   })
   .sort((a, b) => a.order - b.order)
@@ -56,6 +58,8 @@ const promos = await Promise.all(
       ctaLabel: t(p.entry, 'ctaLabel', locale, 'Call Now'),
       ctaHref: p.entry.ctaHref,
       image: p.entry.image,
+      imageAlt: (((p.entry as any).imageAlt ?? '') as string).trim()
+        || (locale === 'fr' && p.entry.titleFr ? p.entry.titleFr : titleFromSlug(p.slug)),
       bodyHtml: locale === 'fr' && p.entry.bodyFr
         ? `<p>${escapeHtml(p.entry.bodyFr)}</p>`
         : await renderMarkdoc(p.entry.bodyEn),
@@ -71,14 +75,25 @@ function escapeHtml(s: string): string {
 }
 
 const heroImage = home?.heroImage;
-const heroImagesRaw = (home as any)?.heroImages as (string | null | undefined)[] | undefined;
+const heroImageAlt = ((home as any)?.heroImageAlt ?? '').trim() || 'Spring Massage Therapy studio in Montréal';
+const heroImagesRaw = (home as any)?.heroImages as Array<{ image?: string | null; alt?: string | null } | string | null | undefined> | undefined;
 const heroSlides = (heroImagesRaw ?? [])
-  .map((s) => (typeof s === 'string' ? s.trim() : ''))
-  .filter((s): s is string => !!s);
-const fallbackSlides = heroImage ? [heroImage] : [];
+  .map((entry) => {
+    if (!entry) return null;
+    if (typeof entry === 'string') {
+      return entry.trim() ? { src: entry.trim(), alt: heroImageAlt } : null;
+    }
+    const src = (entry.image ?? '').trim();
+    if (!src) return null;
+    const alt = (entry.alt ?? '').trim() || heroImageAlt;
+    return { src, alt };
+  })
+  .filter((s): s is { src: string; alt: string } => !!s);
+const fallbackSlides = heroImage ? [{ src: heroImage, alt: heroImageAlt }] : [];
 const slides = heroSlides.length > 0 ? heroSlides : fallbackSlides;
 const heroIntervalMs = Math.max(2, Math.min(60, Number((home as any)?.heroIntervalSeconds ?? 6))) * 1000;
 const storyImage = home?.storyImage;
+const storyImageAlt = ((home as any)?.storyImageAlt ?? '').trim() || 'Heritage Tudor manor housing Spring Massage Therapy';
 
 const heroEyebrow = t(home, 'heroEyebrow', locale, 'Welcome to our');
 const heroTitle = t(home, 'heroTitle', locale, 'Spring Massage Therapy');
@@ -117,10 +132,10 @@ const descStr = locale === 'fr'
           data-hero-slideshow
           data-interval={heroIntervalMs}
         >
-          {slides.map((src, i) => (
+          {slides.map((slide, i) => (
             <img
-              src={src}
-              alt=""
+              src={slide.src}
+              alt={slide.alt}
               class:list={[
                 'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out',
                 i === 0 ? 'opacity-100' : 'opacity-0',
@@ -172,7 +187,7 @@ const descStr = locale === 'fr'
     </div>
     <div class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
       {storyImage ? (
-        <img src={storyImage} alt="The studio" class="w-full h-full object-cover" />
+        <img src={storyImage} alt={storyImageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
       ) : (
         <span>Photo</span>
       )}
@@ -193,7 +208,7 @@ const descStr = locale === 'fr'
             <div class="bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 transition flex flex-col">
               {svc.image && (
                 <div class="aspect-[4/3] overflow-hidden">
-                  <img src={svc.image} alt="" class="w-full h-full object-cover" />
+                  <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
               )}
               <div class="p-8 text-center flex-1 flex flex-col justify-center">
@@ -237,7 +252,7 @@ const descStr = locale === 'fr'
           <article class="relative bg-stone-100 overflow-hidden flex flex-col">
             {p.image && (
               <div class="aspect-[16/9] overflow-hidden">
-                <img src={p.image} alt="" class="w-full h-full object-cover" />
+                <img src={p.image} alt={p.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
               </div>
             )}
             {p.tag && (
