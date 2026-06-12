@@ -89,21 +89,22 @@ See `src/styles/global.css`:
 - **Inter** — body / UI
 - **Caveat** — handwritten script accents
 
-## Deployment plan
+## Deployment
 
-1. Push to GitHub
-2. Connect Cloudflare Pages — build cmd `npm run build`, output `dist/client/`
-3. Add custom domain `springmassagetherapy.ca` in Cloudflare dashboard
-4. Update DNS to point at Cloudflare (or transfer registrar to Cloudflare for at-cost pricing)
-5. Switch Keystatic storage from `local` → `github` (requires GitHub OAuth app) so admin works in production
+The site uses a two-host architecture, both free:
+
+- **Public site** (`springmassagetherapy.ca`) → Cloudflare Pages, pure static
+- **Admin** (`/keystatic`) → Vercel, Astro SSR
+
+Both build from this repo. Every push to `main` triggers both deploys. See
+[SETUP.md](./SETUP.md) for the full one-time setup.
 
 ## Outstanding items
 
 - [ ] Add Zarah's real photos via Keystatic admin
 - [ ] Cal.com account + event types
 - [ ] French translation pass (site is bilingual EN/FR)
-- [ ] GitHub repo + Cloudflare Pages connection
-- [ ] Switch Keystatic storage to GitHub mode for production admin
+- [ ] Custom domain DNS (point at Cloudflare Pages, optional `admin.` subdomain at Vercel)
 
 ## Practice info
 
