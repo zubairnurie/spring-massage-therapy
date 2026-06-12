@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/((?!keystatic|api/keystatic).*)",
+      "destination": "https://springmassagetherapy.ca/$1",
+      "permanent": false
+    }
+  ]
+}

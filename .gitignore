@@ -28,3 +28,6 @@ reference/
 
 # Cloudflare local
 .wrangler/
+
+# Vercel local
+.vercel/
