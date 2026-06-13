@@ -120,13 +120,11 @@ export default config({
           defaultValue: 'Heritage Tudor manor housing Spring Massage Therapy',
         }),
         // Trust strip — small horizontal row of credibility signals shown
-        // below the hero. Off by default — these facts already live in
-        // /about (credentials), /contact (hours), and the reviews carousel
-        // (rating). Tick if you want to repeat them on the home page.
+        // below the hero. Only renders when `showTrustStrip` is on.
         showTrustStrip: fields.checkbox({
           label: 'Show trust strip on home page',
-          description: 'A small row right below the hero with credibility signals (years of practice, hours, rating, insurance receipts). Off by default — the same facts are already in About, Contact, and the reviews. Tick to surface them on home.',
-          defaultValue: false,
+          description: 'A small row right below the hero with credibility signals (years of practice, hours, rating, insurance receipts). Untick to hide.',
+          defaultValue: true,
         }),
         // Pull-quote — pick a single review to feature prominently between
         // the Story section and Featured Services. Only renders when

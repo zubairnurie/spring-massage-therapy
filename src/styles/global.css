@@ -195,28 +195,6 @@ h1, h2, h3, h4 {
   }
 }
 
-/* Scroll-driven zoom on the home Story image.
- *
- * The image starts at 110% scale when it enters the viewport and zooms
- * back to 100% as the user scrolls past it. Driven by JS in
- * src/views/HomeView.astro: an IntersectionObserver tracks visibility
- * and a scroll handler updates a --story-zoom-scale CSS variable. The
- * actual transform is applied here so the rendering can be tuned in
- * one place.
- *
- * Disabled under prefers-reduced-motion. */
-.story-zoom {
-  transform: scale(var(--story-zoom-scale, 1.1));
-  transform-origin: center;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .story-zoom {
-    transform: none;
-  }
-}
-
 /* Card image colour grade — quiet desaturation + tiny warm tint so disparate
  * stock photos (and Zarah's eventual real photos) read as part of the same
  * cream-and-coral palette instead of fighting with it.

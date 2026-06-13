@@ -369,8 +369,8 @@ Sidebar → **About Page** → edit any of:
 ### Set your credentials and trust signals
 
 These small facts help new clients trust you before they book. They appear:
+- as a small horizontal "trust strip" near the top of the home page
 - in a credentials line right under your bio on the About page
-- (optionally) as a small horizontal "trust strip" near the top of the home page — off by default; tick the toggle in Home Page settings to enable
 
 Sidebar → **About Page**:
 - **Years of practice** — e.g. `8`. Renders as "8+ years of practice". Leave blank to hide.
@@ -380,13 +380,13 @@ Sidebar → **About Page**:
 
 **Save** when done.
 
-### Show or hide things on the home page
+### Hide or show the home-page trust strip and pull-quote
 
-The home page is intentionally calm. Two optional sections you can toggle:
+If you ever want to clean up the home page (e.g. while you're rewriting other content), you can temporarily hide:
 
 Sidebar → **Home Page**:
-- **Show trust strip on home page** — off by default. Tick to add a small row of facts (years, hours, rating, insurance receipts) right below the hero. The same facts already appear on About and Contact, so this is purely about whether to repeat them on home.
-- **Show featured pull-quote on home page** — on by default. Untick to hide the big italic quote section between the story and services.
+- **Show trust strip on home page** — untick to hide the small row of facts under the hero
+- **Show featured pull-quote on home page** — untick to hide the big quote section
 - **Featured pull-quote review** — pick which review appears as the big quote. The same review still also shows in the carousel below.
 
 **Save**.

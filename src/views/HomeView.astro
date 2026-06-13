@@ -174,70 +174,55 @@ const descStr = locale === 'fr'
   title={titleStr}
   description={descStr}
 >
-  <!-- Hero — asymmetric editorial layout. Copy left in the standard
-       content rail; image bleeds to the right edge of the viewport.
-       On mobile: image first, full-width-but-padded; copy below. -->
-  <section class="bg-stone-50 overflow-hidden">
-    <div class="md:grid md:grid-cols-[1fr_minmax(0,55vw)] md:items-stretch">
-      <!-- Copy column — respects the standard content rail by using a
-           container that pulls itself to the right edge of the rail. -->
-      <div class="md:flex md:items-center md:justify-end px-6 md:pr-20 md:pl-0 py-12 md:py-24 order-2 md:order-1">
-        <div data-reveal class="w-full max-w-xl md:ml-auto">
-          <p class="font-script text-coral-400 text-2xl md:text-3xl mb-3">{heroEyebrow}</p>
-          <h1 class="font-serif text-4xl md:text-6xl tracking-tight mb-6 text-stone-700 leading-[1.05]">
-            {heroTitle}
-          </h1>
-          <div class="w-16 h-px bg-coral-300 mb-8"></div>
-          <p class="text-lg text-stone-600 leading-relaxed italic whitespace-pre-line">
-            {heroBody}
-          </p>
-          {showFrFallbackNotice && (
-            <p class="mt-6 text-xs text-stone-500 italic">{s.translationComingSoon}</p>
-          )}
-          <div class="mt-10 flex flex-wrap gap-4">
-            <a href={localePath(ctaPrimaryHref, locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
-              {ctaPrimary}
-            </a>
-            <a href={localePath(ctaSecondaryHref, locale)} class="border border-stone-300 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
-              {ctaSecondary}
-            </a>
-          </div>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    {slides.length > 0 ? (
+      <>
+        <div
+          class="absolute inset-0"
+          data-hero-slideshow
+          data-interval={heroIntervalMs}
+        >
+          {slides.map((slide, i) => (
+            <img
+              src={slide.src}
+              alt={slide.alt}
+              class:list={[
+                'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out',
+                i === 0 ? 'opacity-100' : 'opacity-0',
+              ]}
+              data-hero-slide
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          ))}
         </div>
-      </div>
-
-      <!-- Image column — bleeds to the right edge of the viewport on
-           desktop. On mobile, lives inside its own padded block above
-           the copy. -->
-      <div data-reveal style="--reveal-delay: 200ms" class="order-1 md:order-2 relative aspect-[4/5] md:aspect-auto md:min-h-[640px] overflow-hidden">
-        {slides.length > 0 ? (
-          <div
-            class="absolute inset-0"
-            data-hero-slideshow
-            data-interval={heroIntervalMs}
-          >
-            {slides.map((slide, i) => (
-              <img
-                src={slide.src}
-                alt={slide.alt}
-                class:list={[
-                  'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out',
-                  i === 0 ? 'opacity-100' : 'opacity-0',
-                ]}
-                data-hero-slide
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            ))}
-          </div>
-        ) : (
-          <div class="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-50"></div>
-        )}
+        <div class="absolute inset-0 bg-stone-50/80 backdrop-blur-[1px]"></div>
+      </>
+    ) : (
+      <div class="absolute inset-0 bg-gradient-to-b from-stone-100 via-stone-50 to-stone-50"></div>
+    )}
+    <div class="relative max-w-5xl mx-auto px-6 py-24 md:py-32 text-center">
+      <p class="font-script text-coral-400 text-2xl md:text-3xl mb-3">{heroEyebrow}</p>
+      <h1 class="font-serif text-4xl md:text-6xl tracking-wide mb-6 text-stone-700">
+        {heroTitle}
+      </h1>
+      <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
+      <p class="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed italic whitespace-pre-line">
+        {heroBody}
+      </p>
+      {showFrFallbackNotice && (
+        <p class="mt-6 text-xs text-stone-500 italic">{s.translationComingSoon}</p>
+      )}
+      <div class="mt-10 flex flex-wrap gap-4 justify-center">
+        <a href={localePath(ctaPrimaryHref, locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
+          {ctaPrimary}
+        </a>
+        <a href={localePath(ctaSecondaryHref, locale)} class="border border-stone-300 hover:border-coral-400 text-stone-700 hover:text-coral-500 tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
+          {ctaSecondary}
+        </a>
       </div>
     </div>
-    <!-- Cream bottom-padding visually separates the hero (cream) from the
-         next section (stone-100) — without it, the bled images crash into
-         each other and the colour change is hidden by the image edges. -->
-    <div class="h-12 md:h-20"></div>
   </section>
 
   {renderTrustStrip && (
@@ -253,42 +238,30 @@ const descStr = locale === 'fr'
     </section>
   )}
 
-  <!-- Story — asymmetric layout mirroring the hero. Image bleeds to
-       the LEFT edge of the viewport this time; copy lives in the
-       content rail on the right. On mobile: image first, copy below.
-       bg-stone-100 matches the alternating-section rhythm used by
-       Featured Services and the reviews row. The colour change from
-       the cream hero is the section break — no divider needed. -->
-  <section class="bg-stone-100 overflow-hidden">
-    <div class="md:grid md:grid-cols-[minmax(0,55vw)_1fr] md:items-stretch">
-      <!-- Image column — bleeds to the left edge of the viewport on
-           desktop. On mobile, lives inside its own padded block above
-           the copy. -->
-      <div data-reveal class="order-1 relative aspect-[4/5] md:aspect-auto md:min-h-[640px] overflow-hidden">
-        {storyImage ? (
-          <img src={storyImage} alt={storyImageAlt} class="card-img story-zoom absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
-        ) : (
-          <div class="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-50 flex items-center justify-center text-stone-400 italic">Photo</div>
-        )}
-      </div>
-
-      <!-- Copy column — anchored on the left of its column so the text
-           sits close to the image edge, in the standard content rail. -->
-      <div class="md:flex md:items-center md:justify-start px-6 md:pl-20 md:pr-0 py-12 md:py-24 order-2">
-        <div data-reveal style="--reveal-delay: 140ms" class="w-full max-w-xl md:mr-auto">
-          <p class="font-script text-coral-400 text-2xl mb-2">{storyEyebrow}</p>
-          <h2 class="font-serif text-3xl md:text-4xl mb-6">{storyTitle}</h2>
-          <div class="text-stone-600 leading-relaxed mb-6 whitespace-pre-line">{storyBody}</div>
-          <a href={localePath('/about', locale)} class="text-coral-500 hover:text-coral-600 tracking-wider uppercase text-sm">
-            {s.readMore}
-          </a>
-        </div>
-      </div>
+  <!-- Story -->
+  <SectionDivider />
+  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+    <div data-reveal>
+      <p class="font-script text-coral-400 text-2xl mb-2">{storyEyebrow}</p>
+      <h2 class="font-serif text-3xl md:text-4xl mb-6">{storyTitle}</h2>
+      <div class="text-stone-600 leading-relaxed mb-6 whitespace-pre-line">{storyBody}</div>
+      <a href={localePath('/about', locale)} class="text-coral-500 hover:text-coral-600 tracking-wider uppercase text-sm">
+        {s.readMore}
+      </a>
+    </div>
+    <div data-reveal style="--reveal-delay: 140ms" class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
+      {storyImage ? (
+        <img src={storyImage} alt={storyImageAlt} class="card-img w-full h-full object-cover" loading="lazy" decoding="async" />
+      ) : (
+        <span>Photo</span>
+      )}
     </div>
   </section>
 
   {pullQuote && (
-    <section class="relative bg-gradient-to-b from-stone-50 via-stone-100/40 to-stone-50 py-20">
+    <>
+      <SectionDivider />
+      <section class="relative bg-gradient-to-b from-stone-50 via-stone-100/40 to-stone-50 py-20">
       <div class="max-w-3xl mx-auto px-6 text-center">
         <p data-reveal class="font-serif italic text-2xl md:text-3xl text-stone-700 leading-relaxed">
           <span class="text-coral-300 font-serif text-6xl leading-none align-middle mr-2 not-italic" aria-hidden="true">&ldquo;</span>
@@ -437,66 +410,6 @@ const descStr = locale === 'fr'
         current = next;
       };
       setInterval(tick, interval);
-    })();
-  </script>
-
-  <script is:inline>
-    /* Story image scroll-zoom.
-     *
-     * Starts at scale 1.1 when the image enters the bottom of the viewport
-     * and eases to 1.0 by the time it exits the top. Sets a CSS variable
-     * --story-zoom-scale on the element; CSS turns that into a transform.
-     *
-     * Uses IntersectionObserver to wake up the scroll listener only while
-     * the image is actually visible, so we're not running scroll math on
-     * every page scroll forever.
-     *
-     * Respects prefers-reduced-motion (CSS disables transform; we still
-     * write the variable but it's ignored). */
-    (function () {
-      var img = document.querySelector('.story-zoom');
-      if (!img) return;
-      if (!('IntersectionObserver' in window)) return;
-
-      var ticking = false;
-      var visible = false;
-
-      function update() {
-        ticking = false;
-        var rect = img.getBoundingClientRect();
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        // 0 when the top of the image is at the bottom of the viewport,
-        // 1 when the bottom of the image is at the top of the viewport.
-        var travel = vh + rect.height;
-        var progress = (vh - rect.top) / travel;
-        progress = Math.max(0, Math.min(1, progress));
-        // Map 0..1 progress to scale 1.10..1.00.
-        var scale = 1.1 - (progress * 0.1);
-        img.style.setProperty('--story-zoom-scale', scale.toFixed(4));
-      }
-
-      function onScroll() {
-        if (!visible) return;
-        if (!ticking) {
-          window.requestAnimationFrame(update);
-          ticking = true;
-        }
-      }
-
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          visible = entry.isIntersecting;
-          if (visible) {
-            update(); // sync once on entry
-          }
-        });
-      }, { rootMargin: '50px 0px 50px 0px' });
-
-      io.observe(img);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      // Initial sync in case the image is already in view on load.
-      update();
     })();
   </script>
 </BaseLayout>
