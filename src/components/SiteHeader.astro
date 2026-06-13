@@ -40,7 +40,7 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
   ? localePath(cleanPath, otherLocale)
   : localePath('/', otherLocale);
 ---
-<header class="border-b border-stone-200 bg-stone-50/95 backdrop-blur sticky top-0 z-50">
+<header class="border-b border-stone-200 bg-stone-50/95 backdrop-blur sticky top-0 z-[110]">
   <!-- Top info strip -->
   <div class="bg-stone-100 text-stone-600 text-xs">
     <div class="max-w-6xl mx-auto px-6 py-2 flex flex-wrap gap-x-6 gap-y-1 justify-between">
@@ -122,45 +122,44 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       </a>
     </div>
 
-    <!-- Mobile menu trigger -->
+    <!-- Mobile menu trigger — toggles the drop-down. The ☰ / ✕ symbols are
+         swapped via JS; we use spans with classes so screen readers see
+         "Open menu" / "Close menu" via the dynamic aria-label. -->
     <button
       type="button"
       id="mobile-menu-trigger"
-      class="md:hidden text-stone-700 text-2xl"
+      class="md:hidden text-stone-700 text-2xl w-8 h-8 leading-none flex items-center justify-center"
       aria-label={locale === 'fr' ? 'Ouvrir le menu' : 'Open menu'}
       aria-expanded="false"
       aria-controls="mobile-menu"
     >
-      ☰
+      <span id="mobile-menu-icon-open">☰</span>
+      <span id="mobile-menu-icon-close" class="hidden">✕</span>
     </button>
   </div>
 </header>
 
-<!-- Mobile menu drawer — sibling of <header> so position:fixed escapes the
-     header's sticky/backdrop-blur stacking context. -->
+<!-- Mobile menu drop-down — sibling of <header> so position:fixed escapes the
+     header's sticky/backdrop-blur stacking context. Drops down from the
+     top, full-width. The backdrop covers the rest of the screen below it.
+     `pointer-events-none` and `invisible` make it untouchable when closed. -->
 <div
   id="mobile-menu"
-  class="md:hidden fixed inset-0 z-[100] hidden"
+  class="md:hidden fixed inset-0 z-[100] invisible pointer-events-none"
   aria-hidden="true"
 >
   <!-- Backdrop -->
-  <div id="mobile-menu-backdrop" class="absolute inset-0 bg-stone-700/60 backdrop-blur-sm"></div>
+  <div
+    id="mobile-menu-backdrop"
+    class="absolute inset-0 bg-stone-700/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-out"
+  ></div>
 
-  <!-- Panel -->
-  <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-stone-50 shadow-2xl flex flex-col overflow-hidden">
-    <div class="flex items-center justify-between p-6 border-b border-stone-200 shrink-0">
-      <span class="font-serif text-lg text-stone-700">Menu</span>
-      <button
-        type="button"
-        id="mobile-menu-close"
-        class="text-stone-500 hover:text-stone-700 text-3xl leading-none w-8 h-8 flex items-center justify-center"
-        aria-label={locale === 'fr' ? 'Fermer le menu' : 'Close menu'}
-      >
-        ×
-      </button>
-    </div>
-
-    <nav class="flex-1 overflow-y-auto p-6 flex flex-col gap-1">
+  <!-- Panel — drops from the top, full-width -->
+  <div
+    id="mobile-menu-panel"
+    class="absolute left-0 right-0 top-0 bg-stone-50 shadow-xl flex flex-col max-h-[90vh] overflow-hidden -translate-y-full transition-transform duration-300 ease-out"
+  >
+    <nav class="overflow-y-auto px-6 py-6 flex flex-col gap-1">
       {nav.map(item => (
         <a
           href={localePath(item.href, locale)}
@@ -194,7 +193,7 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       </div>
     </nav>
 
-    <div class="border-t border-stone-200 p-6 text-xs text-stone-500 space-y-1 shrink-0">
+    <div class="border-t border-stone-200 px-6 py-4 text-xs text-stone-500 space-y-1 shrink-0">
       <a href={phoneHref} class="block hover:text-coral-500 transition">{phone}</a>
       <p>{address}</p>
       <p>{hours}</p>
@@ -206,28 +205,65 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
   (function () {
     const trigger = document.getElementById('mobile-menu-trigger');
     const menu = document.getElementById('mobile-menu');
-    const closeBtn = document.getElementById('mobile-menu-close');
+    const panel = document.getElementById('mobile-menu-panel');
     const backdrop = document.getElementById('mobile-menu-backdrop');
-    if (!trigger || !menu) return;
+    const iconOpen = document.getElementById('mobile-menu-icon-open');
+    const iconClose = document.getElementById('mobile-menu-icon-close');
+    if (!trigger || !menu || !panel || !backdrop) return;
+
+    const isFr = document.documentElement.lang === 'fr';
+    const labelOpen = isFr ? 'Ouvrir le menu' : 'Open menu';
+    const labelClose = isFr ? 'Fermer le menu' : 'Close menu';
+
+    let closeTimer;
 
     function openMenu() {
-      menu.classList.remove('hidden');
+      clearTimeout(closeTimer);
+      // Position the panel directly below the (sticky) header so it doesn't
+      // slide in behind it. Read the header height fresh each open in case
+      // the viewport / content has changed.
+      const header = document.querySelector('header');
+      const headerH = header ? header.getBoundingClientRect().height : 0;
+      panel.style.top = headerH + 'px';
+
+      menu.classList.remove('invisible', 'pointer-events-none');
       menu.setAttribute('aria-hidden', 'false');
       trigger.setAttribute('aria-expanded', 'true');
+      trigger.setAttribute('aria-label', labelClose);
+      iconOpen?.classList.add('hidden');
+      iconClose?.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-    }
-    function closeMenu() {
-      menu.classList.add('hidden');
-      menu.setAttribute('aria-hidden', 'true');
-      trigger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
+      requestAnimationFrame(() => {
+        backdrop.classList.remove('opacity-0');
+        panel.classList.remove('-translate-y-full');
+      });
     }
 
-    trigger.addEventListener('click', openMenu);
-    closeBtn?.addEventListener('click', closeMenu);
-    backdrop?.addEventListener('click', closeMenu);
+    function closeMenu() {
+      backdrop.classList.add('opacity-0');
+      panel.classList.add('-translate-y-full');
+      menu.setAttribute('aria-hidden', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-label', labelOpen);
+      iconClose?.classList.add('hidden');
+      iconOpen?.classList.remove('hidden');
+      document.body.style.overflow = '';
+      closeTimer = setTimeout(() => {
+        menu.classList.add('invisible', 'pointer-events-none');
+      }, 300);
+    }
+
+    function isOpen() {
+      return menu.getAttribute('aria-hidden') === 'false';
+    }
+
+    trigger.addEventListener('click', () => {
+      if (isOpen()) closeMenu();
+      else openMenu();
+    });
+    backdrop.addEventListener('click', closeMenu);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !menu.classList.contains('hidden')) closeMenu();
+      if (e.key === 'Escape' && isOpen()) closeMenu();
     });
     menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
   })();

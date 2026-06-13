@@ -213,7 +213,7 @@ const descStr = locale === 'fr'
         <div class="grid md:grid-cols-3 gap-6">
           {featured.map((svc, i) => (
             <a
-              href={localePath('/services', locale)}
+              href={`${localePath('/services', locale)}#${svc.slug}`}
               data-reveal
               style={`--reveal-delay: ${i * 140}ms`}
               class="group bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 hover:-translate-y-1 hover:shadow-card-hover transition duration-300 flex flex-col"

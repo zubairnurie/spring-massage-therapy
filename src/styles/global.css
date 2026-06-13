@@ -125,3 +125,28 @@ h1, h2, h3, h4 {
     0 1px 2px -1px rgba(46, 42, 34, 0.04),
     0 12px 24px -8px rgba(46, 42, 34, 0.18);
 }
+
+/* Deep-link arrival highlight.
+ *
+ * When the user lands on /services#<slug> (e.g. clicked a featured-service
+ * card on the home page), briefly tint the targeted row so they see which
+ * one matched. Fades out over ~2.5s — long enough to read, short enough to
+ * not linger.
+ *
+ * The animation only runs when the element is BOTH the URL :target AND
+ * tagged with .deep-link-target, so it doesn't fire on unrelated anchors. */
+@keyframes deep-link-highlight {
+  0%   { background-color: rgba(237, 133, 105, 0.18); }
+  20%  { background-color: rgba(237, 133, 105, 0.18); }
+  100% { background-color: transparent; }
+}
+
+.deep-link-target:target {
+  animation: deep-link-highlight 2.5s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deep-link-target:target {
+    animation: none;
+  }
+}

@@ -112,10 +112,11 @@ const descStr = locale === 'fr'
             const bookable = handle && svc.bookingSlug;
             return (
               <div
+                id={svc.slug}
                 data-reveal
                 style={`--reveal-delay: ${Math.min(i, 2) * 50}ms`}
                 class:list={[
-                  'relative py-6 px-4 -mx-4 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center transition duration-300 group',
+                  'deep-link-target relative py-6 px-4 -mx-4 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center transition duration-300 group scroll-mt-32',
                   bookable ? 'hover:bg-stone-100/60 cursor-pointer' : '',
                 ]}
               >
