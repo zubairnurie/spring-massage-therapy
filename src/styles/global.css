@@ -126,6 +126,44 @@ h1, h2, h3, h4 {
   }
 }
 
+/* Hero entrance — staggered fade-up that plays on page load.
+ *
+ * Differs from `[data-reveal]` (which waits for IntersectionObserver and
+ * is meant for content discovered while scrolling). The hero is always
+ * above the fold on load, so it animates immediately without observer
+ * overhead — a few hundred ms of stillness, then the eyebrow lands,
+ * then title, divider, body, CTAs. The cadence reads as "calm reveal,"
+ * not "loading."
+ *
+ * Per-element offset is set inline via `style="--hero-delay: ...ms"`.
+ * `animation-fill-mode: both` makes the element honor the keyframe's
+ * starting state during the delay, so it stays hidden until its turn. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-rise {
+  opacity: 0;
+  animation: hero-rise 900ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: var(--hero-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 /* Card hover shadow — asymmetric, weighted downward so the card reads as
  * "lifted off the page from above" rather than a flat halo. The two layers
  * combine a tight close shadow (the card edge) with a softer, deeper one
