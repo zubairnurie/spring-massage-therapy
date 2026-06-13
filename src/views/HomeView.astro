@@ -239,7 +239,7 @@ const descStr = locale === 'fr'
   )}
 
   <!-- Story -->
-  <SectionDivider />
+  {!renderTrustStrip && <SectionDivider />}
   <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
     <div data-reveal>
       <p class="font-script text-coral-400 text-2xl mb-2">{storyEyebrow}</p>
