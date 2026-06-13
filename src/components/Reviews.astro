@@ -162,6 +162,13 @@ const displayCount = googleCountDisplay ?? reviews.length;
           ))}
         </div>
 
+        <!-- Edge hover-zones: when the cursor lingers near the left or right
+             edge of the carousel, the track auto-scrolls in that direction.
+             Pointer-events disabled on touch (mobile already has flick-scroll).
+             Visible only when there's more content to scroll to. -->
+        <div class="reviews-edge reviews-edge-left" data-edge="left" aria-hidden="true"></div>
+        <div class="reviews-edge reviews-edge-right" data-edge="right" aria-hidden="true"></div>
+
         <!-- Dot navigation -->
         {reviews.length > 1 && (
           <div class="reviews-dots flex justify-center gap-2 mt-6" role="tablist" aria-label="Choose review">
@@ -180,6 +187,52 @@ const displayCount = googleCountDisplay ?? reviews.length;
         <!-- Hide native scrollbar without breaking scroll -->
         <style>
           .reviews-track::-webkit-scrollbar { display: none; }
+
+          /* Edge hover-zones: invisible click-targets that flank the carousel
+           * and trigger slow auto-scroll on hover. Each carries a faint
+           * gradient affordance so the user can see there's "more" past the
+           * edge. The gradient fades in on hover to confirm interaction.
+           *
+           * Hidden on touch devices (no hover capability) and when the
+           * track is already at that end (`data-at-start`/`data-at-end`). */
+          .reviews-edge {
+            position: absolute;
+            top: 0;
+            bottom: 1rem;          /* match track's pb-4 so we don't cover the dots */
+            width: 8%;
+            min-width: 48px;
+            max-width: 96px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 250ms ease;
+            z-index: 5;
+          }
+          .reviews-edge-left {
+            left: 0;
+            background: linear-gradient(to right, var(--color-stone-100, rgba(241, 236, 226, 0.9)), transparent);
+          }
+          .reviews-edge-right {
+            right: 0;
+            background: linear-gradient(to left, var(--color-stone-100, rgba(241, 236, 226, 0.9)), transparent);
+          }
+          @media (hover: hover) and (pointer: fine) {
+            .reviews-carousel:not([data-at-start]) .reviews-edge-left,
+            .reviews-carousel:not([data-at-end]) .reviews-edge-right {
+              pointer-events: auto;
+              opacity: 0.4;
+            }
+            .reviews-carousel:not([data-at-start]) .reviews-edge-left:hover,
+            .reviews-carousel:not([data-at-end]) .reviews-edge-right:hover {
+              opacity: 0.85;
+              cursor: e-resize;
+            }
+            .reviews-carousel:not([data-at-start]) .reviews-edge-left:hover {
+              cursor: w-resize;
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .reviews-edge { display: none; }
+          }
         </style>
 
         <script is:inline>
@@ -187,7 +240,7 @@ const displayCount = googleCountDisplay ?? reviews.length;
             document.querySelectorAll('.reviews-carousel').forEach((root) => {
               const track = root.querySelector('.reviews-track');
               const dots = root.querySelectorAll('.reviews-dot');
-              if (!track || dots.length === 0) return;
+              if (!track) return;
 
               const cards = Array.from(track.children);
 
@@ -216,9 +269,26 @@ const displayCount = googleCountDisplay ?? reviews.length;
                 });
               });
 
-              // Sync the active dot to whichever card is most centered
+              // Track edge state so the gradient affordance hides at the ends.
+              function updateEdgeState() {
+                const max = track.scrollWidth - track.clientWidth;
+                if (track.scrollLeft <= 1) {
+                  root.setAttribute('data-at-start', '');
+                } else {
+                  root.removeAttribute('data-at-start');
+                }
+                if (track.scrollLeft >= max - 1) {
+                  root.setAttribute('data-at-end', '');
+                } else {
+                  root.removeAttribute('data-at-end');
+                }
+              }
+
+              // Sync the active dot to whichever card is most centered, and
+              // refresh edge state whenever the user (or auto-scroll) moves.
               let scrollTimer;
               track.addEventListener('scroll', () => {
+                updateEdgeState();
                 clearTimeout(scrollTimer);
                 scrollTimer = setTimeout(() => {
                   const trackRect = track.getBoundingClientRect();
@@ -238,7 +308,40 @@ const displayCount = googleCountDisplay ?? reviews.length;
                 }, 80);
               });
 
-              activateDot(0);
+              if (dots.length > 0) activateDot(0);
+              updateEdgeState();
+              window.addEventListener('resize', updateEdgeState);
+
+              // --- Edge hover auto-scroll ---------------------------------
+              // While the cursor is over the left or right edge zone, nudge
+              // scrollLeft a small amount per frame. ~0.6px/frame ≈ 36px/sec
+              // at 60fps — slow enough to feel intentional, fast enough to
+              // actually traverse the track in a few seconds.
+              const SPEED = 0.6;
+              const edges = root.querySelectorAll('.reviews-edge');
+              let direction = 0;       // -1 = left, 1 = right, 0 = idle
+              let rafId = null;
+
+              function step() {
+                if (direction === 0) { rafId = null; return; }
+                track.scrollLeft += direction * SPEED;
+                rafId = requestAnimationFrame(step);
+              }
+
+              edges.forEach((edge) => {
+                const dir = edge.getAttribute('data-edge') === 'left' ? -1 : 1;
+                edge.addEventListener('mouseenter', () => {
+                  direction = dir;
+                  if (rafId === null) rafId = requestAnimationFrame(step);
+                });
+                edge.addEventListener('mouseleave', () => {
+                  direction = 0;
+                });
+              });
+
+              // Stop auto-scroll if the user starts a touch interaction
+              // (covers hybrid devices like touch-screen laptops).
+              track.addEventListener('touchstart', () => { direction = 0; }, { passive: true });
             });
           })();
         </script>
