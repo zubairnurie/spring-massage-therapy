@@ -17,8 +17,10 @@
 /services/therapeutic-deep-pressure/  /services#therapeutic-deep-pressure-upgrade  301
 /services/therapeutic-deep-pressure  /services#therapeutic-deep-pressure-upgrade  301
 
-# Wildcard fallback. Cloudflare's :splat captures whatever matches *.
-# The trailing-slash and no-trailing-slash variants are listed
-# explicitly so the splat doesn't include a stray '/' in the anchor.
-/services/*/  /services#:splat  301
-/services/*   /services#:splat  301
+# Wildcard fallback for old WordPress per-service URLs.
+# IMPORTANT: the splat (*) matches the empty string too, so a naive
+# "/services/*" rule will catch "/services/" itself and redirect the
+# services page to "/services#" — breaking the page entirely.
+# We use placeholders (:slug) instead, which require at least one char.
+/services/:slug/  /services#:slug  301
+/services/:slug   /services#:slug  301
