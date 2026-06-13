@@ -36,14 +36,14 @@ const descStr = locale === 'fr'
 <BaseLayout locale={locale} title={titleStr} description={descStr}>
   <!-- About Zarah -->
   <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-[1fr_1.4fr] gap-12 items-start">
-    <div class="aspect-[3/4] bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic order-2 md:order-1">
+    <div data-reveal class="aspect-[3/4] bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic order-2 md:order-1">
       {portrait ? (
         <img src={portrait} alt={portraitAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
       ) : (
         <span>Portrait</span>
       )}
     </div>
-    <div class="order-1 md:order-2">
+    <div data-reveal style="--reveal-delay: 140ms" class="order-1 md:order-2">
       <p class="font-script text-coral-400 text-2xl mb-2">{s.aboutZarah}</p>
       <h1 class="font-serif text-4xl md:text-5xl mb-2">Zarah Bellamy</h1>
       <p class="text-stone-500 tracking-widest uppercase text-sm mb-6">{s.massageTherapist}</p>
@@ -60,7 +60,7 @@ const descStr = locale === 'fr'
   <!-- About the Studio -->
   <section class="bg-stone-100 py-20">
     <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-      <div>
+      <div data-reveal>
         <p class="font-script text-coral-400 text-2xl mb-2">{s.aPeacefulRetreat}</p>
         <h2 class="font-serif text-3xl md:text-4xl mb-6">{s.aboutTheStudio}</h2>
         <div class="space-y-4 text-stone-600 leading-relaxed whitespace-pre-line">
@@ -69,10 +69,10 @@ const descStr = locale === 'fr'
         <p class="italic text-stone-500 mt-6">{s.hiddenGem}</p>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+        <div data-reveal style="--reveal-delay: 140ms" class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
           {studio1 ? <img src={studio1} alt={studio1Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Studio</span>}
         </div>
-        <div class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+        <div data-reveal style="--reveal-delay: 280ms" class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
           {studio2 ? <img src={studio2} alt={studio2Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Courtyard</span>}
         </div>
       </div>

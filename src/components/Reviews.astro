@@ -130,7 +130,7 @@ const displayCount = googleCountDisplay ?? reviews.length;
     </div>
 
     {carousel ? (
-      <div class="reviews-carousel relative">
+      <div data-reveal class="reviews-carousel relative">
         <!-- Scroll viewport — snap-x ensures cards align cleanly when scrolling -->
         <div
           class="reviews-track flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4"
@@ -245,8 +245,12 @@ const displayCount = googleCountDisplay ?? reviews.length;
       </div>
     ) : (
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {reviews.map(r => (
-          <article class="bg-stone-50 border border-stone-200 p-6 flex flex-col">
+        {reviews.map((r, i) => (
+          <article
+            data-reveal
+            style={`--reveal-delay: ${Math.min(i, 5) * 80}ms`}
+            class="bg-stone-50 border border-stone-200 p-6 flex flex-col"
+          >
             <div class="flex items-center gap-2 mb-3">
               <span class="text-coral-400 tracking-tight" aria-label={`${r.rating} out of 5 stars`}>
                 {'★'.repeat(r.rating)}<span class="text-stone-200">{'★'.repeat(5 - r.rating)}</span>

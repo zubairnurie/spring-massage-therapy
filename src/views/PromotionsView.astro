@@ -61,8 +61,12 @@ const descStr = locale === 'fr'
       <p class="text-center text-stone-500 italic">{s.noActivePromos}</p>
     ) : (
       <div class="grid md:grid-cols-3 gap-6">
-        {promos.map(p => (
-          <article class="relative bg-stone-100 overflow-hidden flex flex-col">
+        {promos.map((p, i) => (
+          <article
+            data-reveal
+            style={`--reveal-delay: ${i * 140}ms`}
+            class="relative bg-stone-100 overflow-hidden flex flex-col"
+          >
             {p.image && (
               <div class="aspect-[16/9] overflow-hidden">
                 <img src={p.image} alt={p.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />

@@ -118,5 +118,32 @@ import SiteFooter from '../components/SiteFooter.astro';
       <slot />
     </main>
     <SiteFooter locale={locale} />
+
+    <!-- Reveal-on-scroll: marks `data-reveal` elements with
+         `data-reveal-shown` once they enter the viewport. CSS in
+         global.css does the actual animation. No-op if
+         IntersectionObserver isn't supported (elements stay visible
+         via the prefers-reduced-motion fallback rule). -->
+    <script is:inline>
+      (function () {
+        if (typeof IntersectionObserver === 'undefined') {
+          document.querySelectorAll('[data-reveal]').forEach(function (el) {
+            el.setAttribute('data-reveal-shown', '');
+          });
+          return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.setAttribute('data-reveal-shown', '');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: '0px 0px 10% 0px', threshold: 0 });
+        document.querySelectorAll('[data-reveal]').forEach(function (el) {
+          io.observe(el);
+        });
+      })();
+    </script>
   </body>
 </html>

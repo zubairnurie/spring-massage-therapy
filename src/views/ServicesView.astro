@@ -108,8 +108,12 @@ const descStr = locale === 'fr'
 
         <!-- Group items -->
         <div class="divide-y divide-stone-200 border-y border-stone-200">
-          {group.items.map(svc => (
-            <div class="py-6 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center">
+          {group.items.map((svc, i) => (
+            <div
+              data-reveal
+              style={`--reveal-delay: ${Math.min(i, 2) * 50}ms`}
+              class="py-6 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center"
+            >
               {svc.image ? (
                 <div class="w-full md:w-32 aspect-[4/3] overflow-hidden rounded-sm">
                   <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />

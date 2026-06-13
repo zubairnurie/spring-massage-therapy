@@ -184,7 +184,7 @@ const descStr = locale === 'fr'
   <!-- Story -->
   <SectionDivider />
   <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-    <div>
+    <div data-reveal>
       <p class="font-script text-coral-400 text-2xl mb-2">{storyEyebrow}</p>
       <h2 class="font-serif text-3xl md:text-4xl mb-6">{storyTitle}</h2>
       <div class="text-stone-600 leading-relaxed mb-6 whitespace-pre-line">{storyBody}</div>
@@ -192,7 +192,7 @@ const descStr = locale === 'fr'
         {s.readMore}
       </a>
     </div>
-    <div class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
+    <div data-reveal style="--reveal-delay: 140ms" class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
       {storyImage ? (
         <img src={storyImage} alt={storyImageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
       ) : (
@@ -211,8 +211,12 @@ const descStr = locale === 'fr'
           <div class="w-16 h-px bg-coral-300 mx-auto mt-4"></div>
         </div>
         <div class="grid md:grid-cols-3 gap-6">
-          {featured.map(svc => (
-            <div class="bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 transition flex flex-col">
+          {featured.map((svc, i) => (
+            <div
+              data-reveal
+              style={`--reveal-delay: ${i * 140}ms`}
+              class="bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 transition flex flex-col"
+            >
               {svc.image && (
                 <div class="aspect-[4/3] overflow-hidden">
                   <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -255,8 +259,12 @@ const descStr = locale === 'fr'
         <div class="w-16 h-px bg-coral-300 mx-auto mt-4"></div>
       </div>
       <div class="grid md:grid-cols-3 gap-6">
-        {promos.map(p => (
-          <article class="relative bg-stone-100 overflow-hidden flex flex-col">
+        {promos.map((p, i) => (
+          <article
+            data-reveal
+            style={`--reveal-delay: ${i * 140}ms`}
+            class="relative bg-stone-100 overflow-hidden flex flex-col"
+          >
             {p.image && (
               <div class="aspect-[16/9] overflow-hidden">
                 <img src={p.image} alt={p.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
