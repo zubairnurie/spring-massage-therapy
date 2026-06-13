@@ -50,6 +50,19 @@
 
   /* Spacing rhythm — generous, unhurried */
   --spacing-section: 6rem;
+
+  /* Motion tokens — adjust here to retune the whole site at once.
+   * `--motion-reveal-duration` controls how long the slide-up/fade-in
+   * animation takes when an element scrolls into view.
+   * `--motion-reveal-distance` is how far it travels.
+   * `--motion-card-hover-duration` controls hover-state transitions
+   * on cards (lift, shadow, image zoom).
+   *
+   * Larger duration = calmer, more premium feel. Smaller = snappier,
+   * more app-like. Sweet spot for this site: 800-1000ms. */
+  --motion-reveal-duration: 900ms;
+  --motion-reveal-distance: 18px;
+  --motion-card-hover-duration: 300ms;
 }
 
 /* Smooth, calm baseline */
@@ -92,9 +105,10 @@ h1, h2, h3, h4 {
  */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
-              transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: translateY(var(--motion-reveal-distance));
+  transition:
+    opacity var(--motion-reveal-duration) cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform var(--motion-reveal-duration) cubic-bezier(0.22, 0.61, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -178,5 +192,28 @@ h1, h2, h3, h4 {
 @media (prefers-reduced-motion: reduce) {
   .menu-line {
     transition: none;
+  }
+}
+
+/* Card image colour grade — quiet desaturation + tiny warm tint so disparate
+ * stock photos (and Zarah's eventual real photos) read as part of the same
+ * cream-and-coral palette instead of fighting with it.
+ *
+ * Effect: barely noticeable on any single photo; visibly more cohesive
+ * across a row of cards. ~5% saturation pulled, ~4% sepia warmth added,
+ * +2% contrast to preserve depth. Hover restores ~full saturation so the
+ * image feels alive when interacted with.
+ *
+ * Applied via the .card-img class — explicit opt-in so the hero / about /
+ * portrait images are unaffected. */
+.card-img {
+  filter: saturate(0.92) sepia(0.04) contrast(1.02);
+  transition: filter 400ms ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .card-img,
+  a:hover .card-img {
+    filter: saturate(1) sepia(0) contrast(1);
   }
 }

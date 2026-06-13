@@ -251,7 +251,7 @@ const descStr = locale === 'fr'
     </div>
     <div data-reveal style="--reveal-delay: 140ms" class="aspect-square bg-stone-200 rounded-sm overflow-hidden flex items-center justify-center text-stone-400 italic">
       {storyImage ? (
-        <img src={storyImage} alt={storyImageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
+        <img src={storyImage} alt={storyImageAlt} class="card-img w-full h-full object-cover" loading="lazy" decoding="async" />
       ) : (
         <span>Photo</span>
       )}
@@ -259,16 +259,24 @@ const descStr = locale === 'fr'
   </section>
 
   {pullQuote && (
-    <section class="max-w-3xl mx-auto px-6 py-20 text-center">
-      <p data-reveal class="font-serif italic text-2xl md:text-3xl text-stone-700 leading-relaxed">
-        <span class="text-coral-300 text-5xl leading-none align-middle mr-1" aria-hidden="true">"</span>
-        <span set:html={pullQuote.bodyText}></span>
-        <span class="text-coral-300 text-5xl leading-none align-middle ml-1" aria-hidden="true">"</span>
-      </p>
-      <p data-reveal style="--reveal-delay: 100ms" class="mt-6 text-sm tracking-widest uppercase text-stone-500">
-        — {pullQuote.reviewer}
-      </p>
+    <>
+      <SectionDivider />
+      <section class="relative bg-gradient-to-b from-stone-50 via-stone-100/40 to-stone-50 py-20">
+      <div class="max-w-3xl mx-auto px-6 text-center">
+        <p data-reveal class="font-serif italic text-2xl md:text-3xl text-stone-700 leading-relaxed">
+          <span class="text-coral-300 font-serif text-6xl leading-none align-middle mr-2 not-italic" aria-hidden="true">&ldquo;</span>
+          <span set:html={pullQuote.bodyText}></span>
+          <span class="text-coral-300 font-serif text-6xl leading-none align-middle ml-2 not-italic" aria-hidden="true">&rdquo;</span>
+        </p>
+        <div data-reveal style="--reveal-delay: 100ms" class="mt-8 flex flex-col items-center gap-2">
+          <span class="text-coral-400 tracking-tight" aria-label={`${pullQuote.rating} out of 5 stars`}>
+            {'★'.repeat(pullQuote.rating)}
+          </span>
+          <p class="text-sm tracking-widest uppercase text-stone-500">— {pullQuote.reviewer}</p>
+        </div>
+      </div>
     </section>
+    </>
   )}
 
   <!-- Featured services -->
@@ -290,7 +298,7 @@ const descStr = locale === 'fr'
             >
               {svc.image && (
                 <div class="aspect-[4/3] overflow-hidden">
-                  <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
+                  <img src={svc.image} alt={svc.imageAlt} class="card-img w-full h-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 </div>
               )}
               <div class="p-8 text-center flex-1 flex flex-col justify-center">
@@ -338,7 +346,7 @@ const descStr = locale === 'fr'
           >
             {p.image && (
               <div class="aspect-[16/9] overflow-hidden">
-                <img src={p.image} alt={p.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
+                <img src={p.image} alt={p.imageAlt} class="card-img w-full h-full object-cover" loading="lazy" decoding="async" />
               </div>
             )}
             {p.tag && (

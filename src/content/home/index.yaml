@@ -9,11 +9,11 @@ heroBodyEn: >-
 heroImage: /images/hero/heroImage.jpg
 heroImageAlt: Spring Massage Therapy studio in Montréal
 heroImages:
-  - image: /images/hero/heroImages/0.jpg
+  - image: /images/hero/heroImages/0/image.jpg
     alt: Spring Massage Therapy studio in Montréal
-  - image: /images/hero/heroImages/1.webp
+  - image: /images/hero/heroImages/1/image.webp
     alt: Spring Massage Therapy studio in Montréal
-  - image: /images/hero/heroImages/2.jpeg
+  - image: /images/hero/heroImages/2/image.jpeg
     alt: Spring Massage Therapy studio in Montréal
 heroIntervalSeconds: 4
 ctaPrimaryEn: Book a Session
@@ -35,3 +35,6 @@ storyBodyEn: >-
   It is a place where history, nature, and care come together to hold sanctuary.
 storyImage: /images/home/storyImage.jpg
 storyImageAlt: Heritage Tudor manor housing Spring Massage Therapy
+showTrustStrip: true
+showPullQuote: true
+pullQuoteReview: asaf-salem
