@@ -48,6 +48,10 @@ const absoluteSocialImage = socialImage ? new URL(socialImage, siteUrl).toString
 const favicon = site?.favicon;
 const jsonLd = await buildJsonLdFromContent(siteUrl);
 
+// Only the Vercel-hosted admin gets the PWA manifest + service worker.
+// The public static site on Cloudflare Pages doesn't need to be installable.
+const isAdminBuild = process.env.DEPLOY_TARGET === 'vercel';
+
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -76,6 +80,17 @@ import SiteFooter from '../components/SiteFooter.astro';
       <>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="icon" href="/favicon.ico" />
+      </>
+    )}
+
+    {isAdminBuild && (
+      <>
+        {/* PWA install support: only emitted on the Vercel-hosted admin
+            so Zarah can install the admin to her home screen for one-tap
+            access. */}
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#2E2A22" />
+        <link rel="apple-touch-icon" href="/images/site/icon-192.png" />
       </>
     )}
 
@@ -145,5 +160,17 @@ import SiteFooter from '../components/SiteFooter.astro';
         });
       })();
     </script>
+
+    {isAdminBuild && (
+      <script is:inline>
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function (err) {
+              console.warn('SW registration failed', err);
+            });
+          });
+        }
+      </script>
+    )}
   </body>
 </html>

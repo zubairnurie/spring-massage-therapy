@@ -116,8 +116,11 @@ h1, h2, h3, h4 {
  * "lifted off the page from above" rather than a flat halo. The two layers
  * combine a tight close shadow (the card edge) with a softer, deeper one
  * (the cast shadow on the surface below). The light source is implicitly
- * top-left, matching the rest of the site's lighting cues. */
-.shadow-card-hover {
+ * top-left, matching the rest of the site's lighting cues.
+ *
+ * Defined as a Tailwind v4 @utility so `hover:shadow-card-hover`,
+ * `focus:shadow-card-hover` etc. all work as expected. */
+@utility shadow-card-hover {
   box-shadow:
     0 1px 2px -1px rgba(46, 42, 34, 0.04),
     0 12px 24px -8px rgba(46, 42, 34, 0.18);
