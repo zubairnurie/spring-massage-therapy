@@ -320,9 +320,9 @@ const displayCount = googleCountDisplay ?? reviews.length;
               // whole pixels via `scrollBy({ behavior: 'auto' })`, which
               // explicitly bypasses the CSS scroll-behavior.
               //
-              // ~2px/frame ≈ 120px/sec at 60fps — slow enough to read,
-              // fast enough that you can actually traverse the track.
-              const SPEED = 2;
+              // ~1px/frame ≈ 60px/sec at 60fps — calm drift, lets the
+              // user read each card as it slides past.
+              const SPEED = 1;
               const edges = root.querySelectorAll('.reviews-edge');
               let direction = 0;       // -1 = left, 1 = right, 0 = idle
               let rafId = null;
