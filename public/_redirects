@@ -1,0 +1,24 @@
+# Cloudflare Pages redirects
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Format: <source>  <destination>  <status>
+# 301 = permanent (browsers + Google cache it)
+#
+# Order matters — top match wins. Specific rules above wildcards.
+
+# --- WordPress legacy URL redirects ---------------------------------
+# The previous WordPress site exposed each service at /services/<slug>/.
+# Our new site renders all services on a single /services page with
+# anchors per service.
+
+# Specific known mapping where the WordPress slug differs from ours.
+# WordPress: /services/therapeutic-deep-pressure/
+# Current:   therapeutic-deep-pressure-upgrade
+/services/therapeutic-deep-pressure/  /services#therapeutic-deep-pressure-upgrade  301
+/services/therapeutic-deep-pressure  /services#therapeutic-deep-pressure-upgrade  301
+
+# Wildcard fallback. Cloudflare's :splat captures whatever matches *.
+# The trailing-slash and no-trailing-slash variants are listed
+# explicitly so the splat doesn't include a stray '/' in the anchor.
+/services/*/  /services#:splat  301
+/services/*   /services#:splat  301
