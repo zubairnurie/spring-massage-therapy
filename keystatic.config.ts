@@ -9,7 +9,7 @@ import { config, fields, collection, singleton } from '@keystatic/core';
  * required for Vite/Astro to expose the variable to the browser bundle —
  * Keystatic's React admin runs client-side and needs to see this config.
  *
- * See SETUP.md for one-time GitHub OAuth app + secret setup.
+ * See SETUP.md for one-time GitHub App (NOT OAuth App) + secret setup.
  */
 const storageKind = import.meta.env.PUBLIC_KEYSTATIC_STORAGE_KIND ?? 'local';
 const repoOwner = import.meta.env.PUBLIC_KEYSTATIC_REPO_OWNER ?? 'your-github-username';
@@ -245,6 +245,11 @@ export default config({
       format: { contentField: 'descriptionEn' },
       schema: {
         name: fields.slug({ name: { label: 'Service name (EN, used as URL)' } }),
+        displayNameEn: fields.text({
+          label: 'Service name (EN, displayed)',
+          description: 'The visible English name. Leave blank to derive it from the URL slug above. Edit this when you want to rename the service without changing its URL.',
+          defaultValue: '',
+        }),
         nameFr: fields.text({ label: 'Service name — FR', defaultValue: '' }),
         group: fields.select({
           label: 'Group',
@@ -262,6 +267,11 @@ export default config({
           label: 'Sale price (optional)',
           description: 'When set, the regular price is shown with a strikethrough and this price is highlighted. Use values like "Free", "$0", or a discounted dollar amount. Leave empty when there is no active promotion.',
           defaultValue: '',
+        }),
+        saleActive: fields.checkbox({
+          label: 'Sale is active',
+          description: 'Untick to pause this sale without losing the sale price/dates.',
+          defaultValue: true,
         }),
         saleNoteEn: fields.text({
           label: 'Sale note — EN (optional)',
@@ -307,6 +317,11 @@ export default config({
       format: { contentField: 'bodyEn' },
       schema: {
         title: fields.slug({ name: { label: 'Title (EN, used as URL)' } }),
+        displayTitleEn: fields.text({
+          label: 'Promotion title (EN, displayed)',
+          description: 'The visible English title. Leave blank to derive it from the URL slug above. Edit this when you want to rename the promotion without changing its URL.',
+          defaultValue: '',
+        }),
         titleFr: fields.text({ label: 'Title — FR', defaultValue: '' }),
         tagEn: fields.text({ label: 'Tag (corner ribbon) — EN', defaultValue: 'Promo' }),
         tagFr: fields.text({ label: 'Tag (corner ribbon) — FR', defaultValue: 'Promo' }),

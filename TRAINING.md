@@ -149,6 +149,25 @@ When you open the admin you'll see:
 4. **Save** (top right, green)
 5. Wait ~90 seconds, then refresh the live site
 
+### Rename a service (without breaking its URL)
+
+The slug field at the top — labelled **Service name (EN, used as URL)** —
+is part of the page's web address. Don't change it once a service is
+published, or old links and bookmarks break.
+
+To change just the visible name:
+
+1. Sidebar → **Services** → click the service
+2. Fill in **Service name (EN, displayed)** — this is what visitors see on
+   the site. Leave blank to keep using the slug-derived default
+   (e.g. "60 Min Full Body Massage").
+3. For the French name, use **Service name — FR** as before.
+4. **Save**
+
+The same applies to **Promotions** — there's a **Promotion title
+(EN, displayed)** field. Use that to rename a promotion. Don't touch the
+slug.
+
 ### Run a sale on a service
 
 You can put any service on sale and have the sale end automatically on a
@@ -157,19 +176,26 @@ date. The site handles all the on/off toggling for you.
 1. Sidebar → **Services** → click the service
 2. **Sale price** — enter the new (lower) price, e.g. `$60`. Leave empty
    when there's no sale.
-3. **Sale note — EN** — optional small italic line under the sale price.
+3. **Sale is active** — leave checked. Untick to pause a sale early
+   without losing the sale price or dates (handy if you want to bring it
+   back later with one click).
+4. **Sale note — EN** — optional small italic line under the sale price.
    Example: `Summer 2026 — save $20`.
-4. **Sale starts (optional)** — leave empty to start now, or pick a date.
-5. **Sale ends (optional)** — pick the date the sale should automatically
+5. **Sale starts (optional)** — leave empty to start now, or pick a date.
+6. **Sale ends (optional)** — pick the date the sale should automatically
    stop. Leave empty for no end date (rarely a good idea — sales should
    end).
-6. **Save**
+7. **Save**
 
 The website automatically:
 - Shows the regular price with a strikethrough
 - Highlights the sale price
 - Removes the sale automatically after the end date — you don't have to
   remember to take it down
+
+To **pause a sale early** (e.g. you want to stop offering it but keep the
+price and dates around for later): open the service, untick **Sale is
+active**, save. Re-tick when you want it back.
 
 ### Add a new promotion
 
@@ -266,6 +292,41 @@ You only do this once. Then services get a **Book →** button.
 The `/book` page picks up automatically. Services with a slug get a
 **Book →** button; ones without keep their **Call to book** fallback.
 
+### Add your Google Business Profile links (do this — it matters)
+
+The site has two CTAs that drive new bookings:
+
+- **"Leave a review"** button on the reviews page — clients tap it and
+  land directly on your Google review form.
+- **"See all on Google →"** link near the rating — visitors click it to
+  read every review on Google.
+
+**Both stay hidden until you fill in the URLs below.** Right now they're
+blank, so the site is missing two of its strongest conversion CTAs.
+
+How to get the URLs:
+
+1. Sign in to your **Google Business Profile** at
+   **https://business.google.com/**
+2. Click **"Get more reviews"** or follow Google's guide here:
+   **https://support.google.com/business/answer/7035772** — this gives
+   you a short review URL like `https://g.page/r/...` that drops people
+   straight into the review form.
+3. Copy your **Business Profile URL** as well — it's the one Google shows
+   when someone searches your business name. It looks like
+   `https://www.google.com/maps/place/...` or `https://g.page/...`.
+
+Then in the admin:
+
+1. Sidebar → **Contact Info**
+2. Paste the review URL into **Google "Leave a Review" URL**
+3. Paste the profile URL into **Google Business Profile URL**
+4. **Save**
+
+Why this matters: people who search "massage Montréal" → click your site
+→ read a review they like → click "See all on Google" → see 30+ five-star
+reviews → book. That funnel doesn't work without these URLs.
+
 ### Edit hero text on the homepage
 
 1. Sidebar → **Home Page** → change any of:
@@ -339,6 +400,11 @@ is coming. Nothing breaks.
 
 You don't have to translate everything at once. Translate when you have
 the time and energy.
+
+> **About the blog**: the **Blog** link in the footer (and the posts at
+> `/blog`) is intentionally English-only and managed in code by Zubair.
+> You don't need to think about it — the FR site simply won't show a Blog
+> link, and the EN/FR toggle still behaves correctly.
 
 ### Tips for bilingual writing
 

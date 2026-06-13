@@ -78,6 +78,13 @@ Reviews are the single biggest ranking factor for local search after Google Busi
 - Aim for ~10 in the first month, then 1–2/week
 - Always respond to reviews (positive and negative) — Google rewards engagement
 
+> **Important — paste both URLs into Keystatic.** Once the GBP is live,
+> open **Contact Info** in the admin and fill **Google "Leave a Review"
+> URL** and **Google Business Profile URL**. Until those fields are set,
+> the site hides the "Leave a review" button and the "See all on Google →"
+> link entirely. See the corresponding section in `TRAINING.md` for the
+> exact steps. This is a 5-minute task with outsized payoff.
+
 ### 6. Keep content fresh
 
 - Add a **promotion** monthly via Keystatic (signals an active business)

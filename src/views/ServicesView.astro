@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { reader, renderMarkdoc } from '../lib/reader';
+import { reader, renderMarkdoc, plainTextToParagraphs } from '../lib/reader';
 import { type Locale, t, hasFr, strings, localePath } from '../lib/i18n';
 import { isActiveNow } from '../lib/active-window';
 
@@ -20,13 +20,13 @@ const services = await Promise.all(
   all.map(async svc => {
     const e: any = svc.entry;
     const saleActive = !!(e.salePrice ?? '').trim() && isActiveNow({
-      active: true,
+      active: e.saleActive ?? true,
       startsAt: e.saleStartsAt,
       endsAt: e.saleEndsAt,
     });
     return {
       slug: svc.slug,
-      name: locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug),
+      name: serviceDisplayName(e, svc.slug, locale),
       price: svc.entry.price,
       salePrice: saleActive ? (e.salePrice ?? '').trim() : '',
       saleNote: saleActive
@@ -37,10 +37,10 @@ const services = await Promise.all(
       featured: svc.entry.featured,
       image: svc.entry.image,
       imageAlt: ((e.imageAlt ?? '') as string).trim()
-        || (locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug)),
+        || serviceDisplayName(e, svc.slug, locale),
       bookingSlug: svc.entry.bookingSlug?.trim() ?? '',
       descriptionHtml: locale === 'fr' && svc.entry.descriptionFr
-        ? `<p>${escapeHtml(svc.entry.descriptionFr)}</p>`
+        ? plainTextToParagraphs(svc.entry.descriptionFr)
         : await renderMarkdoc(svc.entry.descriptionEn),
       missingFr: locale === 'fr' && !svc.entry.descriptionFr?.trim(),
     };
@@ -63,8 +63,10 @@ const groupedServices = groupOrder
 function titleFromSlug(slug: string): string {
   return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
 }
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function serviceDisplayName(entry: any, slug: string, loc: Locale): string {
+  if (loc === 'fr' && (entry.nameFr ?? '').trim()) return entry.nameFr.trim();
+  if ((entry.displayNameEn ?? '').trim()) return entry.displayNameEn.trim();
+  return titleFromSlug(slug);
 }
 
 function bookHref(svc: { bookingSlug: string }): string {

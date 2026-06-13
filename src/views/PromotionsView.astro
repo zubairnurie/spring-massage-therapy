@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { reader, renderMarkdoc } from '../lib/reader';
+import { reader, renderMarkdoc, plainTextToParagraphs } from '../lib/reader';
 import { type Locale, t, strings, localePath } from '../lib/i18n';
 import { isActiveNow } from '../lib/active-window';
 
@@ -18,16 +18,16 @@ const promos = await Promise.all(
     }))
     .map(async p => ({
       slug: p.slug,
-      title: locale === 'fr' && p.entry.titleFr ? p.entry.titleFr : titleFromSlug(p.slug),
+      title: promoDisplayTitle(p.entry as any, p.slug, locale),
       tag: t(p.entry, 'tag', locale, p.entry.tagEn ?? ''),
       subtitle: t(p.entry, 'subtitle', locale, ''),
       ctaLabel: t(p.entry, 'ctaLabel', locale, 'Call Now'),
       ctaHref: p.entry.ctaHref,
       image: p.entry.image,
       imageAlt: (((p.entry as any).imageAlt ?? '') as string).trim()
-        || (locale === 'fr' && p.entry.titleFr ? p.entry.titleFr : titleFromSlug(p.slug)),
+        || promoDisplayTitle(p.entry as any, p.slug, locale),
       bodyHtml: locale === 'fr' && p.entry.bodyFr
-        ? `<p>${escapeHtml(p.entry.bodyFr)}</p>`
+        ? plainTextToParagraphs(p.entry.bodyFr)
         : await renderMarkdoc(p.entry.bodyEn),
       missingFr: locale === 'fr' && !p.entry.bodyFr?.trim(),
     }))
@@ -36,8 +36,10 @@ const promos = await Promise.all(
 function titleFromSlug(slug: string): string {
   return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
 }
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function promoDisplayTitle(entry: any, slug: string, loc: Locale): string {
+  if (loc === 'fr' && (entry.titleFr ?? '').trim()) return entry.titleFr.trim();
+  if ((entry.displayTitleEn ?? '').trim()) return entry.displayTitleEn.trim();
+  return titleFromSlug(slug);
 }
 
 const titleStr = locale === 'fr'

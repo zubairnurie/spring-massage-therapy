@@ -65,7 +65,9 @@ const instagram = contact?.instagram;
     <div class="max-w-6xl mx-auto px-6 py-5 flex flex-wrap justify-between gap-3 text-xs text-stone-400">
       <span>{s.allRights.replace('{year}', String(new Date().getFullYear()))}</span>
       <div class="flex gap-4 items-center">
-        <a href="/blog" class="hover:text-coral-200 transition">Blog</a>
+        {locale === 'en' && (
+          <a href="/blog" class="hover:text-coral-200 transition">Blog</a>
+        )}
         <span>{s.inMontreal}</span>
       </div>
     </div>

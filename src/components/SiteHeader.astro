@@ -1,6 +1,6 @@
 ---
 import { reader } from '../lib/reader';
-import { type Locale, t, strings, localePath, pathWithoutLocale } from '../lib/i18n';
+import { type Locale, t, strings, localePath, pathWithoutLocale, hasLocaleEquivalent } from '../lib/i18n';
 
 const locale: Locale = (Astro.props.locale as Locale) ?? 'en';
 const s = strings(locale);
@@ -33,7 +33,12 @@ function isCurrent(href: string) {
 }
 
 const otherLocale: Locale = locale === 'en' ? 'fr' : 'en';
-const otherLocaleHref = localePath(cleanPath, otherLocale);
+// If the current path has no equivalent in the other locale (e.g. /blog has
+// no FR version), fall back to the other locale's home page rather than
+// produce a 404.
+const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
+  ? localePath(cleanPath, otherLocale)
+  : localePath('/', otherLocale);
 ---
 <header class="border-b border-stone-200 bg-stone-50/95 backdrop-blur sticky top-0 z-50">
   <!-- Top info strip -->

@@ -14,18 +14,26 @@ const handle = contact?.bookingHandle?.trim() ?? '';
 
 const allServices = await reader.collections.services.all();
 const bookableServices = allServices
-  .map(svc => ({
-    slug: svc.slug,
-    name: locale === 'fr' && svc.entry.nameFr ? svc.entry.nameFr : titleFromSlug(svc.slug),
-    price: svc.entry.price,
-    order: svc.entry.order ?? 999,
-    bookingSlug: svc.entry.bookingSlug?.trim() ?? '',
-  }))
+  .map(svc => {
+    const e: any = svc.entry;
+    return {
+      slug: svc.slug,
+      name: serviceDisplayName(e, svc.slug, locale),
+      price: svc.entry.price,
+      order: svc.entry.order ?? 999,
+      bookingSlug: svc.entry.bookingSlug?.trim() ?? '',
+    };
+  })
   .filter(svc => svc.bookingSlug)
   .sort((a, b) => a.order - b.order);
 
 function titleFromSlug(slug: string): string {
   return slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+}
+function serviceDisplayName(entry: any, slug: string, loc: Locale): string {
+  if (loc === 'fr' && (entry.nameFr ?? '').trim()) return entry.nameFr.trim();
+  if ((entry.displayNameEn ?? '').trim()) return entry.displayNameEn.trim();
+  return titleFromSlug(slug);
 }
 
 const calLink = handle;

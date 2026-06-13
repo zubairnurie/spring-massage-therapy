@@ -45,3 +45,28 @@ export async function renderMarkdocText(content: any): Promise<string> {
   const html = await renderMarkdoc(content);
   return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 }
+
+/**
+ * Render a plain-text bilingual fallback (e.g. the FR `bodyFr` / `descriptionFr`
+ * fields that aren't Markdoc) so paragraph breaks survive.
+ *
+ * Splits on blank lines (one or more `\n\s*\n`) and emits a `<p>` per chunk.
+ * Single newlines within a paragraph become `<br />`. Each chunk is HTML-
+ * escaped so the source stays plain text.
+ */
+export function plainTextToParagraphs(s: string): string {
+  if (!s) return '';
+  return s
+    .split(/\n\s*\n+/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br />')}</p>`)
+    .join('');
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}

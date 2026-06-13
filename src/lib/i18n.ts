@@ -62,6 +62,23 @@ export function pathWithoutLocale(pathname: string): string {
   return pathname;
 }
 
+/**
+ * Routes that don't have an FR equivalent. Currently only the blog —
+ * it's intentionally code-managed and English-only.
+ *
+ * The locale toggle on these paths falls back to the FR home rather than
+ * 404'ing on a non-existent /fr/<path>.
+ */
+export const PATHS_WITHOUT_FR_EQUIVALENT = ['/blog'];
+
+/** True if `cleanPath` (locale-stripped) has a translation in `locale`. */
+export function hasLocaleEquivalent(cleanPath: string, locale: Locale): boolean {
+  if (locale === 'en') return true;
+  return !PATHS_WITHOUT_FR_EQUIVALENT.some(
+    p => cleanPath === p || cleanPath.startsWith(p + '/')
+  );
+}
+
 /** UI strings — site chrome (nav, buttons, etc) that aren't in Keystatic. */
 export const ui = {
   en: {
@@ -92,7 +109,7 @@ export const ui = {
     openHours: 'Open Hours',
     contactLabel: 'Contact',
     welcome: 'Welcome — entrance via the staircase',
-    welcomeFr: "Bienvenue! Entré du studio par l'escalier",
+    welcomeFr: "Bienvenue! Entrée du studio par l'escalier",
     findUs: 'Find us',
     inMontreal: 'Made with care in Montréal',
     allRights: '© {year} Spring Massage Therapy — All rights reserved.',
@@ -168,7 +185,7 @@ export const ui = {
     openHours: 'Heures d\'ouverture',
     contactLabel: 'Contact',
     welcome: "Bienvenue — entrée par l'escalier",
-    welcomeFr: "Bienvenue! Entré du studio par l'escalier",
+    welcomeFr: "Bienvenue! Entrée du studio par l'escalier",
     findUs: 'Nous trouver',
     inMontreal: 'Fait avec soin à Montréal',
     allRights: '© {year} Spring Massage Therapy — Tous droits réservés.',

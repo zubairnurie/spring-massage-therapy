@@ -89,7 +89,7 @@ The `services` and `promotions` collections support automatic sale/active window
 
 ## Stack notes
 
-- Node ≥22.16.0 (npm, not pnpm — pnpm only on PATH inside CXM monorepo)
+- Node ≥22.12.0 (per `package.json` engines; Cloudflare/Vercel build agents pin 22.16.0). npm, not pnpm — pnpm only on PATH inside CXM monorepo
 - Astro 6, Tailwind v4 (uses `@tailwindcss/vite`, no postcss config needed)
 - Keystatic 0.5 with `@keystatic/astro` (auto-registers `/keystatic` and `/api/keystatic/*` routes — do NOT manually create them)
 - The Cloudflare build is **pure static**. Do not introduce SSR-only patterns (e.g. `export const prerender = false`) without confirming the page only ships on the Vercel build.
