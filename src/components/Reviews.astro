@@ -314,17 +314,28 @@ const displayCount = googleCountDisplay ?? reviews.length;
 
               // --- Edge hover auto-scroll ---------------------------------
               // While the cursor is over the left or right edge zone, nudge
-              // scrollLeft a small amount per frame. ~0.6px/frame ≈ 36px/sec
-              // at 60fps — slow enough to feel intentional, fast enough to
-              // actually traverse the track in a few seconds.
-              const SPEED = 0.6;
+              // scrollLeft per frame. The track has `scroll-smooth` and
+              // `snap-mandatory` set, both of which fight tiny per-frame
+              // writes — so we accumulate fractional pixels and write
+              // whole pixels via `scrollBy({ behavior: 'auto' })`, which
+              // explicitly bypasses the CSS scroll-behavior.
+              //
+              // ~2px/frame ≈ 120px/sec at 60fps — slow enough to read,
+              // fast enough that you can actually traverse the track.
+              const SPEED = 2;
               const edges = root.querySelectorAll('.reviews-edge');
               let direction = 0;       // -1 = left, 1 = right, 0 = idle
               let rafId = null;
+              let acc = 0;             // fractional pixel accumulator
 
               function step() {
-                if (direction === 0) { rafId = null; return; }
-                track.scrollLeft += direction * SPEED;
+                if (direction === 0) { rafId = null; acc = 0; return; }
+                acc += direction * SPEED;
+                const whole = Math.trunc(acc);
+                if (whole !== 0) {
+                  track.scrollBy({ left: whole, behavior: 'auto' });
+                  acc -= whole;
+                }
                 rafId = requestAnimationFrame(step);
               }
 
