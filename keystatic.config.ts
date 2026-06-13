@@ -357,32 +357,53 @@ export default config({
         bodyEn: fields.markdoc({ label: 'Body — EN' }),
       },
     }),
-    tiles: collection({
-      label: 'Page Tiles (custom blocks)',
+    pages: collection({
+      label: 'Custom Pages',
       slugField: 'title',
-      path: 'src/content/tiles/*',
+      path: 'src/content/pages/*',
       format: { contentField: 'bodyEn' },
       schema: {
-        title: fields.slug({ name: { label: 'Title (EN, used as URL)' } }),
-        titleFr: fields.text({ label: 'Title — FR', defaultValue: '' }),
-        page: fields.select({
-          label: 'Show on page',
-          options: [
-            { label: 'Home', value: 'home' },
-            { label: 'About', value: 'about' },
-            { label: 'Services', value: 'services' },
-          ],
-          defaultValue: 'home',
+        title: fields.slug({
+          name: { label: 'Page title (EN, used as URL)' },
+          description: 'The title becomes the URL — e.g. "Studio Policies" → /pages/studio-policies. Avoid changing it after publishing or old links will break.',
         }),
-        order: fields.number({ label: 'Display order', defaultValue: 0 }),
-        image: fields.image({ label: 'Image (shared)', directory: 'public/images/tiles', publicPath: '/images/tiles/' }),
-        imageAlt: fields.text({
-          label: 'Image alt text',
-          description: 'Describes this tile image for screen readers and SEO. Leave blank to use the tile title.',
+        titleFr: fields.text({
+          label: 'Page title — FR',
+          description: 'French version of the page title. Leave blank to fall back to English.',
           defaultValue: '',
         }),
-        bodyFr: fields.text({ label: 'Body — FR', multiline: true, defaultValue: '' }),
-        bodyEn: fields.markdoc({ label: 'Body — EN' }),
+        intro: fields.text({
+          label: 'Short intro / subtitle',
+          description: 'One-line subtitle that appears under the title. Optional.',
+          defaultValue: '',
+        }),
+        introFr: fields.text({ label: 'Short intro / subtitle — FR', defaultValue: '' }),
+        image: fields.image({
+          label: 'Hero image (optional)',
+          description: 'Optional photo at the top of the page. Skip for text-only pages.',
+          directory: 'public/images/pages',
+          publicPath: '/images/pages/',
+        }),
+        imageAlt: fields.text({
+          label: 'Hero image alt text',
+          description: 'Describes the image for screen readers and SEO. Leave blank to use the page title.',
+          defaultValue: '',
+        }),
+        noindex: fields.checkbox({
+          label: 'Hide from search engines',
+          description: 'Tick this for internal pages (e.g. "Booking Policies" linked only from the booking page) you do not want Google to index.',
+          defaultValue: false,
+        }),
+        bodyFr: fields.text({
+          label: 'Body — FR',
+          multiline: true,
+          defaultValue: '',
+          description: 'French body. Plain text with paragraph breaks. Leave blank to fall back to English.',
+        }),
+        bodyEn: fields.markdoc({
+          label: 'Body — EN',
+          description: 'Page content. Use the toolbar for formatting.',
+        }),
       },
     }),
     reviews: collection({

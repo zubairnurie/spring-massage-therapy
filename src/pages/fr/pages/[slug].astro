@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { reader, renderMarkdoc, plainTextToParagraphs } from '../../../lib/reader';
+
+export async function getStaticPaths() {
+  const all = await reader.collections.pages.all();
+  return all.map(p => ({
+    params: { slug: p.slug },
+    props: { slug: p.slug },
+  }));
+}
+
+export interface Props { slug: string; }
+const { slug } = Astro.props;
+const locale = 'fr' as const;
+
+const entry = await reader.collections.pages.read(slug);
+if (!entry) {
+  return Astro.redirect('/fr/404');
+}
+
+const e: any = entry;
+const title = (e.titleFr ?? '').trim()
+  ? e.titleFr.trim()
+  : slug.split('-').map((w: string) => w[0]?.toUpperCase() + w.slice(1)).join(' ');
+
+const intro = (e.introFr ?? '').trim() || (e.intro ?? '').trim();
+
+const image = e.image;
+const imageAlt = (e.imageAlt ?? '').trim() || title;
+
+const bodyHtml = (e.bodyFr ?? '').trim()
+  ? plainTextToParagraphs(e.bodyFr)
+  : await renderMarkdoc(e.bodyEn);
+
+const missingFr = !(e.bodyFr ?? '').trim();
+
+const noindex = !!e.noindex;
+const titleStr = `${title} — Spring Massage Therapy`;
+const descStr = intro || `${title} — Spring Massage Therapy à Montréal.`;
+---
+<BaseLayout locale={locale} title={titleStr} description={descStr} noindex={noindex}>
+  <article class="max-w-3xl mx-auto px-6 py-20">
+    <header class="mb-10 text-center">
+      <h1 class="font-serif text-4xl md:text-5xl text-stone-700 leading-tight mb-4">{title}</h1>
+      {intro && (
+        <p class="text-stone-500 text-lg leading-relaxed max-w-2xl mx-auto">{intro}</p>
+      )}
+      <div class="w-16 h-px bg-coral-300 mx-auto mt-8"></div>
+    </header>
+
+    {image && (
+      <div data-reveal class="aspect-[16/9] overflow-hidden rounded-sm mb-10">
+        <img src={image} alt={imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
+      </div>
+    )}
+
+    {missingFr && (
+      <p class="text-xs text-stone-500 italic mb-6 text-center">
+        Cette page n'a pas encore été traduite. Voici la version anglaise.
+      </p>
+    )}
+
+    <div
+      class="prose prose-stone max-w-none
+        prose-headings:font-serif prose-headings:text-stone-700
+        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+        prose-p:text-stone-600 prose-p:leading-relaxed
+        prose-strong:text-stone-700 prose-strong:font-medium
+        prose-a:text-coral-500 prose-a:no-underline hover:prose-a:underline
+        prose-li:text-stone-600"
+      set:html={bodyHtml}
+    ></div>
+  </article>
+</BaseLayout>

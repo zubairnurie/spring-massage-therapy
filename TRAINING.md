@@ -38,7 +38,7 @@ Everything below is yours to change at any time:
 - **Client reviews** that appear on the homepage carousel and reviews page
 - **Logo, favicon, and the social-share image**
 - **Default page description** (the text Google shows under your site in search results)
-- **Page Tiles** — extra blocks you can drop on Home / About / Services pages
+- **Custom Pages** — make a brand-new page (e.g. "Studio Policies", "Gift Cards", "FAQ") that you can link to from anywhere
 - **All of the above in French** as well
 
 ---
@@ -134,7 +134,7 @@ When you open the admin you'll see:
 |---|---|
 | **Services** | Every service: name, group, price, sale price + dates, photo, description, Cal.com event slug |
 | **Promotions** | Active promos shown on the homepage and `/promotions` page |
-| **Page Tiles** | Optional extra blocks droppable on Home / About / Services |
+| **Custom Pages** | Standalone pages you create yourself (e.g. "Studio Policies", "Gift Cards", "FAQ") |
 | **Reviews** | Client reviews shown on the homepage carousel and `/reviews` page |
 
 ---
@@ -363,6 +363,43 @@ Sidebar → **About Page** → edit any of:
 - **Map address** — what shows on the embedded map
 
 **Save** when done.
+
+---
+
+### Create a brand-new custom page
+
+Sometimes you want a whole page that doesn't fit anywhere else: studio
+policies, gift card terms, an FAQ, a notice about parking. The **Custom
+Pages** collection lets you make one yourself.
+
+1. Sidebar → **Custom Pages** → **+ Create**
+2. Fill in:
+   - **Page title (EN, used as URL)** — e.g. `Studio Policies`. This becomes
+     the URL: `/pages/studio-policies`. Don't change it after publishing or
+     old links break.
+   - **Page title — FR** — French version, e.g. `Politiques du studio`. Optional.
+   - **Short intro / subtitle** — one line under the title. Optional.
+   - **Hero image** — optional photo at the top.
+   - **Hide from search engines** — tick this if the page is "internal" (e.g.
+     only linked from the booking flow) and shouldn't show up in Google.
+   - **Body — EN** — write the page content using the toolbar.
+   - **Body — FR** — French version. Plain text. Leave blank to fall back to English.
+3. **Save**.
+
+**Where the new page appears:**
+- It's reachable directly at `/pages/<slug>` (or `/fr/pages/<slug>`)
+- It does **not** automatically appear in the navigation. To link to it from
+  somewhere else (a promo CTA, the footer, a service description), copy its
+  URL and paste it in.
+
+**Example use cases:**
+- "Studio Policies" → linked from the bottom of `/book`
+- "Gift Cards" → linked from a promotion CTA
+- "What to expect at your first session" → linked from a service description
+- "Holiday hours" → linked from a banner or just shared by URL
+
+If you want a custom page added to the main navigation (header or footer),
+ask Zubair — that part requires a small code change.
 
 ---
 
