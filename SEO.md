@@ -8,7 +8,7 @@ This guide is the punch list of things to do *outside* the code to make the site
 
 ## On-page SEO already handled by the code
 
-- ✅ Static HTML, fast load times (Astro)
+- ✅ Static HTML, fast load times (Astro, pure-static on Cloudflare Pages)
 - ✅ Per-page `<title>` and `<meta description>`
 - ✅ `LocalBusiness` JSON-LD structured data on every page (powers Google Knowledge Panel)
 - ✅ Open Graph + Twitter card tags (link previews on iMessage / Instagram / Facebook)
@@ -19,7 +19,7 @@ This guide is the punch list of things to do *outside* the code to make the site
 - ✅ `lang="en"` and `og:locale="en_CA"`
 - ✅ `/book` page set to `noindex` (no need to clutter search results with a booking widget)
 
-You can edit the **default description**, **price range**, and **social share image** in Keystatic → Site Branding.
+You can edit the **default description**, **price range**, and **social share image** in Keystatic → Site Branding (the admin is hosted on Vercel — see SETUP.md).
 
 ---
 
@@ -101,7 +101,7 @@ After 2–4 weeks of running:
 
 - **Google Search Console** → Search results report → see what queries are bringing impressions/clicks
 - **Google Business Profile dashboard** → calls, direction requests, photo views
-- **Cloudflare Web Analytics** (free, no cookies, drop-in script) → page views, top pages, devices
+- **Cloudflare Web Analytics** (free, no cookies, drop-in script) → page views, top pages, devices. See `OPERATIONS.md` for how to enable.
 
 If "massage near me" or "massage Montréal" doesn't show impressions within 8 weeks, the issue is almost always either: (a) Google Business Profile isn't fully completed, or (b) too few reviews relative to competitors. Not the website code.
 
