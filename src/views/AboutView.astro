@@ -20,6 +20,22 @@ const studio2Alt = (((about as any)?.studioImage2Alt ?? '') as string).trim()
 const mapAddress = about?.mapAddress ?? '2229 Hawarden, Montreal, QC';
 const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
 
+// Credentials line under the bio. Each part is optional; only populated
+// pieces render. Joined by a thin middot.
+const yearsExperience = (about as any)?.yearsExperience;
+const associationMembership = ((about as any)?.associationMembership ?? '').trim();
+const languagesSpoken = ((about as any)?.languagesSpoken ?? '').trim();
+const insuranceReceipts = (about as any)?.insuranceReceiptsAvailable !== false;
+const credentials: string[] = [];
+if (typeof yearsExperience === 'number' && yearsExperience > 0) {
+  credentials.push(locale === 'fr' ? `${yearsExperience}+ ans d'expérience` : `${yearsExperience}+ years of practice`);
+}
+if (associationMembership) credentials.push(associationMembership);
+if (languagesSpoken) credentials.push(languagesSpoken);
+if (insuranceReceipts) {
+  credentials.push(locale === 'fr' ? 'Reçus pour assurances' : 'Receipts for insurance reimbursement');
+}
+
 const zarahBio = t(about, 'zarahBio', locale, '');
 const studioBody = t(about, 'studioBody', locale, '');
 const showFrFallbackNotice = locale === 'fr' && (
@@ -53,6 +69,16 @@ const descStr = locale === 'fr'
       <div class="space-y-4 text-stone-600 leading-relaxed whitespace-pre-line">
         {zarahBio}
       </div>
+      {credentials.length > 0 && (
+        <div class="mt-6 pt-6 border-t border-stone-200 text-xs tracking-widest uppercase text-stone-500 flex flex-wrap gap-x-6 gap-y-2">
+          {credentials.map((fact, i) => (
+            <Fragment>
+              {i > 0 && <span class="text-stone-300" aria-hidden="true">·</span>}
+              <span>{fact}</span>
+            </Fragment>
+          ))}
+        </div>
+      )}
       <p class="italic text-stone-500 mt-6">{s.finalNote}</p>
     </div>
   </section>

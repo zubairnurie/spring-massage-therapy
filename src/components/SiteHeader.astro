@@ -122,19 +122,32 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       </a>
     </div>
 
-    <!-- Mobile menu trigger — toggles the drop-down. The ☰ / ✕ symbols are
-         swapped via JS; we use spans with classes so screen readers see
-         "Open menu" / "Close menu" via the dynamic aria-label. -->
+    <!-- Mobile menu trigger — animated SVG: three lines morph into an X.
+         The aria-label is updated dynamically by the menu script below
+         so screen readers hear "Open menu" / "Close menu" appropriately. -->
     <button
       type="button"
       id="mobile-menu-trigger"
-      class="md:hidden text-stone-700 text-2xl w-8 h-8 leading-none flex items-center justify-center"
+      class="md:hidden text-stone-700 w-10 h-10 leading-none flex items-center justify-center"
       aria-label={locale === 'fr' ? 'Ouvrir le menu' : 'Open menu'}
       aria-expanded="false"
       aria-controls="mobile-menu"
     >
-      <span id="mobile-menu-icon-open">☰</span>
-      <span id="mobile-menu-icon-close" class="hidden">✕</span>
+      <svg
+        id="mobile-menu-icon"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line class="menu-line menu-line-top" x1="4" y1="7" x2="20" y2="7" />
+        <line class="menu-line menu-line-mid" x1="4" y1="12" x2="20" y2="12" />
+        <line class="menu-line menu-line-btm" x1="4" y1="17" x2="20" y2="17" />
+      </svg>
     </button>
   </div>
 </header>
@@ -207,8 +220,7 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
     const menu = document.getElementById('mobile-menu');
     const panel = document.getElementById('mobile-menu-panel');
     const backdrop = document.getElementById('mobile-menu-backdrop');
-    const iconOpen = document.getElementById('mobile-menu-icon-open');
-    const iconClose = document.getElementById('mobile-menu-icon-close');
+    const icon = document.getElementById('mobile-menu-icon');
     if (!trigger || !menu || !panel || !backdrop) return;
 
     const isFr = document.documentElement.lang === 'fr';
@@ -230,8 +242,7 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       menu.setAttribute('aria-hidden', 'false');
       trigger.setAttribute('aria-expanded', 'true');
       trigger.setAttribute('aria-label', labelClose);
-      iconOpen?.classList.add('hidden');
-      iconClose?.classList.remove('hidden');
+      icon?.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       requestAnimationFrame(() => {
         backdrop.classList.remove('opacity-0');
@@ -245,8 +256,7 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       menu.setAttribute('aria-hidden', 'true');
       trigger.setAttribute('aria-expanded', 'false');
       trigger.setAttribute('aria-label', labelOpen);
-      iconClose?.classList.add('hidden');
-      iconOpen?.classList.remove('hidden');
+      icon?.classList.remove('is-open');
       document.body.style.overflow = '';
       closeTimer = setTimeout(() => {
         menu.classList.add('invisible', 'pointer-events-none');

@@ -119,6 +119,26 @@ export default config({
           description: 'Describes the story image for screen readers and SEO.',
           defaultValue: 'Heritage Tudor manor housing Spring Massage Therapy',
         }),
+        // Trust strip — small horizontal row of credibility signals shown
+        // below the hero. Only renders when `showTrustStrip` is on.
+        showTrustStrip: fields.checkbox({
+          label: 'Show trust strip on home page',
+          description: 'A small row right below the hero with credibility signals (years of practice, hours, rating, insurance receipts). Untick to hide.',
+          defaultValue: true,
+        }),
+        // Pull-quote — pick a single review to feature prominently between
+        // the Story section and Featured Services. Only renders when
+        // `showPullQuote` is on AND a review is selected.
+        showPullQuote: fields.checkbox({
+          label: 'Show featured pull-quote on home page',
+          description: 'A large italic quote from a single review, between the story section and featured services. Untick to hide.',
+          defaultValue: true,
+        }),
+        pullQuoteReview: fields.relationship({
+          label: 'Featured pull-quote review',
+          description: 'Pick which review to feature as the big pull-quote. The selected review still also appears in the carousel.',
+          collection: 'reviews',
+        }),
       },
     }),
     about: singleton({
@@ -137,6 +157,30 @@ export default config({
         }),
         zarahBioEn: fields.text({ label: 'Zarah\'s bio — EN', multiline: true, defaultValue: '' }),
         zarahBioFr: fields.text({ label: 'Zarah\'s bio — FR', multiline: true, defaultValue: '' }),
+        // Credentials & insurance — used on the About page (under the bio)
+        // and the home page trust strip. Each field is optional; only
+        // populated values render. Receipts checkbox controls the
+        // insurance line specifically.
+        yearsExperience: fields.number({
+          label: 'Years of practice',
+          description: 'Used in the trust strip ("X+ years of practice"). Leave blank to hide that fact.',
+          validation: { min: 0, max: 80 },
+        }),
+        associationMembership: fields.text({
+          label: 'Professional association membership',
+          description: 'e.g. "CMTQ", "Member of FQM". Shown on the About page under credentials. Leave blank to skip.',
+          defaultValue: '',
+        }),
+        languagesSpoken: fields.text({
+          label: 'Languages spoken',
+          description: 'e.g. "English, French, Spanish". Shown in the credentials line on the About page.',
+          defaultValue: 'English, French',
+        }),
+        insuranceReceiptsAvailable: fields.checkbox({
+          label: 'Insurance receipts available',
+          description: 'When ticked, shows "Receipts available for insurance reimbursement" on the trust strip and About page. Major signal for new clients in Quebec.',
+          defaultValue: true,
+        }),
         studioBodyEn: fields.text({ label: 'About the studio — EN', multiline: true, defaultValue: '' }),
         studioBodyFr: fields.text({ label: 'About the studio — FR', multiline: true, defaultValue: '' }),
         studioImage1: fields.image({

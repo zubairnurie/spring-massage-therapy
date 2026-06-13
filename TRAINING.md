@@ -366,6 +366,33 @@ Sidebar → **About Page** → edit any of:
 
 ---
 
+### Set your credentials and trust signals
+
+These small facts help new clients trust you before they book. They appear:
+- as a small horizontal "trust strip" near the top of the home page
+- in a credentials line right under your bio on the About page
+
+Sidebar → **About Page**:
+- **Years of practice** — e.g. `8`. Renders as "8+ years of practice". Leave blank to hide.
+- **Professional association membership** — e.g. `CMTQ` or `Member of FQM`. Shown on the About page. Leave blank to skip.
+- **Languages spoken** — e.g. `English, French`. Shown on the About page.
+- **Insurance receipts available** — tick this if clients can submit receipts to their insurance. Adds a "Receipts for insurance reimbursement" line. **This is one of the strongest signals for new clients in Quebec — if you can do receipts, definitely tick it.**
+
+**Save** when done.
+
+### Hide or show the home-page trust strip and pull-quote
+
+If you ever want to clean up the home page (e.g. while you're rewriting other content), you can temporarily hide:
+
+Sidebar → **Home Page**:
+- **Show trust strip on home page** — untick to hide the small row of facts under the hero
+- **Show featured pull-quote on home page** — untick to hide the big quote section
+- **Featured pull-quote review** — pick which review appears as the big quote. The same review still also shows in the carousel below.
+
+**Save**.
+
+---
+
 ### Create a brand-new custom page
 
 Sometimes you want a whole page that doesn't fit anywhere else: studio

@@ -150,3 +150,33 @@ h1, h2, h3, h4 {
     animation: none;
   }
 }
+
+/* Mobile menu icon — three lines morph into an X.
+ *
+ * The lines rotate around the SVG's centre (12, 12). Top moves down to
+ * meet the centre and rotates 45°; bottom moves up and rotates -45°;
+ * middle fades and shrinks. The SVG itself toggles `is-open` from JS. */
+.menu-line {
+  transition:
+    transform 250ms ease,
+    opacity 200ms ease,
+    y 200ms ease;
+  transform-origin: 12px 12px;
+}
+
+#mobile-menu-icon.is-open .menu-line-top {
+  transform: translateY(5px) rotate(45deg);
+}
+#mobile-menu-icon.is-open .menu-line-mid {
+  opacity: 0;
+  transform: scaleX(0);
+}
+#mobile-menu-icon.is-open .menu-line-btm {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-line {
+    transition: none;
+  }
+}

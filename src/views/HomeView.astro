@@ -14,6 +14,8 @@ const s = strings(locale);
 
 const home = await reader.singletons.home.read();
 const site = await reader.singletons.site.read();
+const about = await reader.singletons.about.read();
+const contact = await reader.singletons.contactInfo.read();
 
 const allServices = await reader.collections.services.all();
 const featured = allServices
@@ -102,6 +104,48 @@ const heroIntervalMs = Math.max(2, Math.min(60, Number((home as any)?.heroInterv
 const storyImage = home?.storyImage;
 const storyImageAlt = ((home as any)?.storyImageAlt ?? '').trim() || 'Heritage Tudor manor housing Spring Massage Therapy';
 
+// --- Trust strip ----------------------------------------------------
+// Pulls from About (years/insurance) and Contact (rating/count). Renders
+// only enabled facts. Hidden entirely if showTrustStrip is unticked.
+const showTrustStrip = (home as any)?.showTrustStrip !== false;
+const yearsExperience = (about as any)?.yearsExperience;
+const insuranceReceipts = (about as any)?.insuranceReceiptsAvailable !== false;
+const googleRating = ((contact as any)?.googleRating ?? '').toString().trim();
+const googleReviewCount = (contact as any)?.googleReviewCount;
+const trustFacts: string[] = [];
+if (typeof yearsExperience === 'number' && yearsExperience > 0) {
+  trustFacts.push(locale === 'fr' ? `${yearsExperience}+ ans d'expérience` : `${yearsExperience}+ years of practice`);
+}
+if (googleRating && googleReviewCount) {
+  trustFacts.push(`${googleRating}★ · ${googleReviewCount} ${locale === 'fr' ? 'avis Google' : 'Google reviews'}`);
+} else if (googleRating) {
+  trustFacts.push(`${googleRating}★ ${locale === 'fr' ? 'sur Google' : 'on Google'}`);
+}
+trustFacts.push(locale === 'fr' ? 'Ouvert tous les jours · 8h–21h' : 'Open daily · 8 AM – 9 PM');
+if (insuranceReceipts) {
+  trustFacts.push(locale === 'fr' ? 'Reçus pour assurances' : 'Receipts for insurance');
+}
+const renderTrustStrip = showTrustStrip && trustFacts.length > 0;
+
+// --- Pull-quote -----------------------------------------------------
+const showPullQuote = (home as any)?.showPullQuote !== false;
+const pullQuoteRef = (home as any)?.pullQuoteReview as string | null | undefined;
+let pullQuote: { reviewer: string; bodyHtml: string; bodyText: string; rating: number } | null = null;
+if (showPullQuote && pullQuoteRef) {
+  const reviewEntry = await reader.collections.reviews.read(pullQuoteRef);
+  if (reviewEntry) {
+    const e: any = reviewEntry;
+    const bodyHtml = await renderMarkdoc(e.body);
+    const bodyText = bodyHtml.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    pullQuote = {
+      reviewer: pullQuoteRef.split('-').map((w) => w[0]?.toUpperCase() + w.slice(1)).join(' '),
+      bodyHtml,
+      bodyText,
+      rating: e.rating ?? 5,
+    };
+  }
+}
+
 const heroEyebrow = t(home, 'heroEyebrow', locale, 'Welcome to our');
 const heroTitle = t(home, 'heroTitle', locale, 'Spring Massage Therapy');
 const heroBody = t(home, 'heroBody', locale, '');
@@ -181,6 +225,19 @@ const descStr = locale === 'fr'
     </div>
   </section>
 
+  {renderTrustStrip && (
+    <section class="border-y border-stone-200 bg-stone-100/60">
+      <div class="max-w-5xl mx-auto px-6 py-5 flex flex-wrap justify-center items-center gap-x-8 gap-y-2 text-xs tracking-widest uppercase text-stone-500">
+        {trustFacts.map((fact, i) => (
+          <Fragment>
+            {i > 0 && <span class="hidden sm:inline text-stone-300" aria-hidden="true">·</span>}
+            <span>{fact}</span>
+          </Fragment>
+        ))}
+      </div>
+    </section>
+  )}
+
   <!-- Story -->
   <SectionDivider />
   <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
@@ -200,6 +257,19 @@ const descStr = locale === 'fr'
       )}
     </div>
   </section>
+
+  {pullQuote && (
+    <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+      <p data-reveal class="font-serif italic text-2xl md:text-3xl text-stone-700 leading-relaxed">
+        <span class="text-coral-300 text-5xl leading-none align-middle mr-1" aria-hidden="true">"</span>
+        <span set:html={pullQuote.bodyText}></span>
+        <span class="text-coral-300 text-5xl leading-none align-middle ml-1" aria-hidden="true">"</span>
+      </p>
+      <p data-reveal style="--reveal-delay: 100ms" class="mt-6 text-sm tracking-widest uppercase text-stone-500">
+        — {pullQuote.reviewer}
+      </p>
+    </section>
+  )}
 
   <!-- Featured services -->
   {featured.length > 0 && (
