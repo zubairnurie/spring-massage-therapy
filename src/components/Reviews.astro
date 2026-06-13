@@ -140,7 +140,7 @@ const displayCount = googleCountDisplay ?? reviews.length;
         >
           {reviews.map((r, i) => (
             <article
-              class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[40%] lg:w-[31%] bg-stone-50 border border-stone-200 p-6 flex flex-col"
+              class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[40%] lg:w-[31%] bg-stone-50 border border-stone-200 p-6 flex flex-col hover:shadow-card-hover transition duration-300"
               role="group"
               aria-roledescription="slide"
               aria-label={`Review ${i + 1} of ${reviews.length}`}
@@ -249,7 +249,7 @@ const displayCount = googleCountDisplay ?? reviews.length;
           <article
             data-reveal
             style={`--reveal-delay: ${Math.min(i, 5) * 80}ms`}
-            class="bg-stone-50 border border-stone-200 p-6 flex flex-col"
+            class="bg-stone-50 border border-stone-200 p-6 flex flex-col hover:shadow-card-hover transition duration-300"
           >
             <div class="flex items-center gap-2 mb-3">
               <span class="text-coral-400 tracking-tight" aria-label={`${r.rating} out of 5 stars`}>

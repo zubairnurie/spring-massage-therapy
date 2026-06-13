@@ -108,54 +108,67 @@ const descStr = locale === 'fr'
 
         <!-- Group items -->
         <div class="divide-y divide-stone-200 border-y border-stone-200">
-          {group.items.map((svc, i) => (
-            <div
-              data-reveal
-              style={`--reveal-delay: ${Math.min(i, 2) * 50}ms`}
-              class="py-6 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center"
-            >
-              {svc.image ? (
-                <div class="w-full md:w-32 aspect-[4/3] overflow-hidden rounded-sm">
-                  <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
-                </div>
-              ) : (
-                <div class="hidden md:block w-32"></div>
-              )}
-              <div>
-                <h3 class="font-serif text-xl text-stone-700 mb-1">{svc.name}</h3>
-                {svc.missingFr && (
-                  <p class="text-xs text-stone-400 italic mb-1">{s.translationComingSoon}</p>
-                )}
-                <div class="text-stone-600 leading-relaxed prose prose-sm" set:html={svc.descriptionHtml}></div>
-              </div>
-              <div class="font-serif whitespace-nowrap text-right">
-                {svc.salePrice ? (
-                  <>
-                    <div class="text-stone-400 text-base line-through leading-none">{svc.price}</div>
-                    <div class="text-coral-500 text-2xl mt-1 leading-none">{svc.salePrice}</div>
-                    {svc.saleNote && (
-                      <div class="font-sans not-italic text-[10px] tracking-wide uppercase text-coral-500 mt-1 max-w-[12rem]">
-                        {svc.saleNote}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div class="text-coral-500 text-xl">{svc.price}</div>
-                )}
-              </div>
-              <a
-                href={bookHref(svc)}
-                class="text-xs tracking-widest uppercase px-5 py-2.5 rounded-full transition border whitespace-nowrap text-center"
+          {group.items.map((svc, i) => {
+            const bookable = handle && svc.bookingSlug;
+            return (
+              <div
+                data-reveal
+                style={`--reveal-delay: ${Math.min(i, 2) * 50}ms`}
                 class:list={[
-                  handle && svc.bookingSlug
-                    ? 'bg-coral-400 hover:bg-coral-500 text-white border-coral-400'
-                    : 'bg-stone-50 text-stone-600 border-stone-300 hover:border-coral-300 hover:text-coral-500',
+                  'relative py-6 px-4 -mx-4 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 md:gap-8 items-center transition duration-300 group',
+                  bookable ? 'hover:bg-stone-100/60 cursor-pointer' : '',
                 ]}
               >
-                {bookLabel(svc)}
-              </a>
-            </div>
-          ))}
+                {bookable && (
+                  <a
+                    href={bookHref(svc)}
+                    class="absolute inset-0 z-0"
+                    aria-label={`${bookLabel(svc)}: ${svc.name}`}
+                  ></a>
+                )}
+                {svc.image ? (
+                  <div class="w-full md:w-32 aspect-[4/3] overflow-hidden rounded-sm">
+                    <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
+                  </div>
+                ) : (
+                  <div class="hidden md:block w-32"></div>
+                )}
+                <div>
+                  <h3 class:list={['font-serif text-xl mb-1 transition', bookable ? 'text-stone-700 group-hover:text-coral-500' : 'text-stone-700']}>{svc.name}</h3>
+                  {svc.missingFr && (
+                    <p class="text-xs text-stone-400 italic mb-1">{s.translationComingSoon}</p>
+                  )}
+                  <div class="text-stone-600 leading-relaxed prose prose-sm" set:html={svc.descriptionHtml}></div>
+                </div>
+                <div class="font-serif whitespace-nowrap text-right">
+                  {svc.salePrice ? (
+                    <>
+                      <div class="text-stone-400 text-base line-through leading-none">{svc.price}</div>
+                      <div class="text-coral-500 text-2xl mt-1 leading-none">{svc.salePrice}</div>
+                      {svc.saleNote && (
+                        <div class="font-sans not-italic text-[10px] tracking-wide uppercase text-coral-500 mt-1 max-w-[12rem]">
+                          {svc.saleNote}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div class="text-coral-500 text-xl">{svc.price}</div>
+                  )}
+                </div>
+                <a
+                  href={bookHref(svc)}
+                  class="relative z-10 text-xs tracking-widest uppercase px-5 py-2.5 rounded-full transition border whitespace-nowrap text-center"
+                  class:list={[
+                    bookable
+                      ? 'bg-coral-400 hover:bg-coral-500 text-white border-coral-400'
+                      : 'bg-stone-50 text-stone-600 border-stone-300 hover:border-coral-300 hover:text-coral-500',
+                  ]}
+                >
+                  {bookLabel(svc)}
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     ))}

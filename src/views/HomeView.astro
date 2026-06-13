@@ -212,18 +212,19 @@ const descStr = locale === 'fr'
         </div>
         <div class="grid md:grid-cols-3 gap-6">
           {featured.map((svc, i) => (
-            <div
+            <a
+              href={localePath('/services', locale)}
               data-reveal
               style={`--reveal-delay: ${i * 140}ms`}
-              class="bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 transition flex flex-col"
+              class="group bg-stone-50 overflow-hidden border border-stone-200 hover:border-coral-300 hover:-translate-y-1 hover:shadow-card-hover transition duration-300 flex flex-col"
             >
               {svc.image && (
                 <div class="aspect-[4/3] overflow-hidden">
-                  <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img src={svc.image} alt={svc.imageAlt} class="w-full h-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 </div>
               )}
               <div class="p-8 text-center flex-1 flex flex-col justify-center">
-                <h3 class="font-serif text-2xl mb-2 text-stone-700">{svc.name}</h3>
+                <h3 class="font-serif text-2xl mb-2 text-stone-700 group-hover:text-coral-500 transition">{svc.name}</h3>
                 {svc.salePrice ? (
                   <div class="my-4">
                     <div class="font-serif text-xl text-stone-400 line-through leading-none">{svc.price}</div>
@@ -238,7 +239,7 @@ const descStr = locale === 'fr'
                   <div class="font-serif text-4xl text-coral-500 my-4">{svc.price}</div>
                 )}
               </div>
-            </div>
+            </a>
           ))}
         </div>
         <div class="text-center mt-10">
@@ -263,7 +264,7 @@ const descStr = locale === 'fr'
           <article
             data-reveal
             style={`--reveal-delay: ${i * 140}ms`}
-            class="relative bg-stone-100 overflow-hidden flex flex-col"
+            class="relative bg-stone-100 overflow-hidden flex flex-col hover:shadow-card-hover transition duration-300"
           >
             {p.image && (
               <div class="aspect-[16/9] overflow-hidden">

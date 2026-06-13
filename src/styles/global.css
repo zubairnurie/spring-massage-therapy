@@ -111,3 +111,14 @@ h1, h2, h3, h4 {
     transition: none;
   }
 }
+
+/* Card hover shadow — asymmetric, weighted downward so the card reads as
+ * "lifted off the page from above" rather than a flat halo. The two layers
+ * combine a tight close shadow (the card edge) with a softer, deeper one
+ * (the cast shadow on the surface below). The light source is implicitly
+ * top-left, matching the rest of the site's lighting cues. */
+.shadow-card-hover {
+  box-shadow:
+    0 1px 2px -1px rgba(46, 42, 34, 0.04),
+    0 12px 24px -8px rgba(46, 42, 34, 0.18);
+}
