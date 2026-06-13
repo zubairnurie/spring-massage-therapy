@@ -35,6 +35,6 @@ storyBodyEn: >-
   It is a place where history, nature, and care come together to hold sanctuary.
 storyImage: /images/home/storyImage.jpg
 storyImageAlt: Heritage Tudor manor housing Spring Massage Therapy
-showTrustStrip: true
+showTrustStrip: false
 showPullQuote: true
 pullQuoteReview: asaf-salem
