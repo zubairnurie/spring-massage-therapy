@@ -154,7 +154,7 @@ import SiteFooter from '../components/SiteFooter.astro';
               io.unobserve(entry.target);
             }
           });
-        }, { rootMargin: '0px 0px 10% 0px', threshold: 0 });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
         document.querySelectorAll('[data-reveal]').forEach(function (el) {
           io.observe(el);
         });
