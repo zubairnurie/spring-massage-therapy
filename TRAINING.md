@@ -514,6 +514,14 @@ Specific beats vague. Compare:
 Warm-but-specific copy converts. Mention the season, the saving, or the
 reason if there is one ("treat yourself before the holidays").
 
+### Further reading
+
+- **[Therapy practices: small CRO wins for higher conversions](https://alwaysopen.design/therapy-practices-cro-wins/)**
+  — Practical, plain-language tips for getting more inquiries from the
+  visitors you already have. Focuses on trust signals, readability,
+  and reducing friction in the booking flow. Good 10-minute read when
+  you have time.
+
 ---
 
 ## What happens when you click Save
