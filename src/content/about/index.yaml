@@ -1,37 +1,41 @@
-zarahBioEn: >-
-  As a massage therapist, I hold a deep belief that every body — in every shape, size,
-  age, and ability — is inherently worthy of care, attention, and respect.
-
-
-  I welcome each client with compassion and without judgment, creating a space where
-  you can feel safe, seen, and truly supported. My goal is to offer a calm, grounding
-  environment where relaxation and healing are prioritized.
-
-
-  Whether you lead an active lifestyle, carry daily stress, or simply crave a space
-  to unwind, your well-being is always at the center of my work.
-
-
-  Through a detailed intake process, I take time to understand where your body holds
-  tension and what you are seeking — so that your experience becomes more than just
-  a massage. It becomes a unique moment of stillness, presence, and renewal.
-zarahBioFr: ""
-studioBodyEn: >-
-  The studio is nestled within a beautiful zen space located in a heritage manor built
-  around 1840 — a treasured part of Montréal's architectural and cultural history.
-
-
-  I like to think of it as the magical yellow little castle — a place where greenery
-  and life come together to hold sanctuary. The atmosphere is serene and full of
-  character, with time-worn stone, tall windows, and peaceful energy woven into the
-  very walls.
-
-
-  Just outside, a lush front courtyard welcomes not only clients but also the animals
-  and small creatures that stop by to rest. We've created a gentle space for them too
-  — fresh water set out among the plants and shade.
-studioBodyFr: ""
+zarahPortrait: /images/about/zarahPortrait.webp
 zarahPortraitAlt: Zarah Bellamy, massage therapist at Spring Massage Therapy
+zarahBioEn: >-
+  As a massage therapist, I hold a deep belief that every body — in every shape,
+  size, age, and ability — is inherently worthy of care, attention, and respect.
+
+
+  I welcome each client with compassion and without judgment, creating a space
+  where you can feel safe, seen, and truly supported. My goal is to offer a
+  calm, grounding environment where relaxation and healing are prioritized.
+
+
+  Whether you lead an active lifestyle, carry daily stress, or simply crave a
+  space to unwind, your well-being is always at the center of my work.
+
+
+  Through a detailed intake process, I take time to understand where your body
+  holds tension and what you are seeking — so that your experience becomes more
+  than just a massage. It becomes a unique moment of stillness, presence, and
+  renewal.
+insuranceReceiptsAvailable: true
+studioBodyEn: >-
+  The studio is nestled within a beautiful zen space located in a heritage manor
+  built around 1840 — a treasured part of Montréal's architectural and cultural
+  history.
+
+
+  I like to think of it as the magical yellow little castle — a place where
+  greenery and life come together to hold sanctuary. The atmosphere is serene
+  and full of character, with time-worn stone, tall windows, and peaceful energy
+  woven into the very walls.
+
+
+  Just outside, a lush front courtyard welcomes not only clients but also the
+  animals and small creatures that stop by to rest. We've created a gentle space
+  for them too — fresh water set out among the plants and shade.
+studioImage1: /images/about/studioImage1.jpg
 studioImage1Alt: Spring Massage Therapy studio interior
+studioImage2: /images/about/studioImage2.jpg
 studioImage2Alt: Spring Massage Therapy studio courtyard
 mapAddress: 2229 Hawarden, Montréal, QC
