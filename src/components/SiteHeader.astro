@@ -40,9 +40,11 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
   ? localePath(cleanPath, otherLocale)
   : localePath('/', otherLocale);
 ---
-<header class="border-b border-stone-200 bg-stone-50/95 backdrop-blur sticky top-0 z-[110]">
-  <!-- Top info strip -->
-  <div class="bg-stone-100 text-stone-600 text-xs">
+<header class="site-header border-b border-stone-200 bg-stone-50/95 backdrop-blur sticky top-0 z-[110] transition-shadow duration-300">
+  <!-- Top info strip — collapses on scroll to give pages more breathing room.
+       Hidden via max-height/opacity transition rather than display:none so
+       the collapse animates smoothly. -->
+  <div class="site-header__strip bg-stone-100 text-stone-600 text-xs overflow-hidden transition-all duration-300 ease-out">
     <div class="max-w-6xl mx-auto px-6 py-2 flex flex-wrap gap-x-6 gap-y-1 justify-between">
       <div class="flex flex-wrap gap-x-6">
         <span>{hours}</span>
@@ -71,10 +73,10 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
   </div>
 
   <!-- Main nav -->
-  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+  <div class="site-header__main max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-6 transition-all duration-300 ease-out">
     <a href={localePath('/', locale)} class="flex items-center gap-2 group">
       {logo ? (
-        <img src={logo} alt="Spring Massage Therapy" class="h-14 md:h-16 w-auto" />
+        <img src={logo} alt="Spring Massage Therapy" class="site-header__logo h-14 md:h-16 w-auto transition-all duration-300 ease-out" />
       ) : (
         <>
           <span class="text-2xl text-moss-400 group-hover:text-moss-500 transition">🌿</span>
@@ -276,5 +278,89 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       if (e.key === 'Escape' && isOpen()) closeMenu();
     });
     menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+  })();
+</script>
+
+<style>
+  /* Compact-on-scroll header.
+   *
+   * Default state: full info strip + roomy main nav (py-4 + h-14/h-16 logo).
+   * Scrolled state (`data-scrolled` set on <header>): info strip collapses,
+   * main row tightens to ~py-2, logo shrinks. Returns reading space without
+   * the user losing the nav.
+   *
+   * Implemented via a single attribute toggle so the transition runs both
+   * directions (collapse on scroll-down, expand on scroll-back-to-top).
+   */
+  .site-header[data-scrolled] {
+    box-shadow: 0 2px 8px -4px rgba(46, 42, 34, 0.12);
+  }
+  .site-header[data-scrolled] .site-header__strip {
+    max-height: 0;
+    opacity: 0;
+    /* Padding stays inside .site-header__strip's inner div, but the parent
+     * collapsing to max-height: 0 hides it visually anyway. */
+  }
+  .site-header[data-scrolled] .site-header__main {
+    padding-top: 0.5rem;     /* py-2 — was py-4 */
+    padding-bottom: 0.5rem;
+  }
+  .site-header[data-scrolled] .site-header__logo {
+    height: 2.25rem;          /* h-9 — was h-14 */
+  }
+  @media (min-width: 768px) {
+    .site-header[data-scrolled] .site-header__logo {
+      height: 2.5rem;         /* md:h-10 — was md:h-16 */
+    }
+  }
+
+  /* Pre-scroll: give the strip an explicit max-height so the transition
+   * has a value to animate from on the first scroll. 5rem comfortably
+   * covers the strip's ~32px content height across breakpoints. */
+  .site-header__strip {
+    max-height: 5rem;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .site-header__strip,
+    .site-header__main,
+    .site-header__logo {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script is:inline>
+  // Compact header on scroll.
+  // Toggle a `data-scrolled` attribute on <header> once the user has
+  // scrolled past the threshold. The 80px threshold is enough to be
+  // comfortably out of any hero eyebrow line but small enough that the
+  // collapse happens early — premium sites do this almost immediately.
+  (function () {
+    const header = document.querySelector('.site-header');
+    if (!header) return;
+    const THRESHOLD = 80;
+    let scheduled = false;
+
+    function update() {
+      scheduled = false;
+      if (window.scrollY > THRESHOLD) {
+        header.setAttribute('data-scrolled', '');
+      } else {
+        header.removeAttribute('data-scrolled');
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!scheduled) {
+        scheduled = true;
+        requestAnimationFrame(update);
+      }
+    }, { passive: true });
+
+    // Run once on load in case the page restored mid-scroll (back nav).
+    update();
   })();
 </script>
