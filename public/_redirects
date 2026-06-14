@@ -11,11 +11,21 @@
 # Our new site renders all services on a single /services page with
 # anchors per service.
 
-# Specific known mapping where the WordPress slug differs from ours.
+# Specific known mappings where the WordPress slug differs from ours.
 # WordPress: /services/therapeutic-deep-pressure/
 # Current:   therapeutic-deep-pressure-upgrade
 /services/therapeutic-deep-pressure/  /services#therapeutic-deep-pressure-upgrade  301
 /services/therapeutic-deep-pressure  /services#therapeutic-deep-pressure-upgrade  301
+
+# Old WordPress service slugs that map to renamed/restructured services
+# on the new site. Listed above the :slug wildcard so they win.
+/services/hot-stones/  /services#hot-stone-massage  301
+/services/hot-stones   /services#hot-stone-massage  301
+/services/yoga-massage-retreat/  /services#yoga-and-massage-retreat  301
+/services/yoga-massage-retreat   /services#yoga-and-massage-retreat  301
+# Generic "full body massage" page — point to canonical 60-min offering.
+/services/full-body-massage/  /services#60-min-full-body-massage  301
+/services/full-body-massage   /services#60-min-full-body-massage  301
 
 # Wildcard fallback for old WordPress per-service URLs.
 # IMPORTANT: the splat (*) matches the empty string too, so a naive
@@ -24,3 +34,48 @@
 # We use placeholders (:slug) instead, which require at least one char.
 /services/:slug/  /services#:slug  301
 /services/:slug   /services#:slug  301
+
+# --- WordPress legacy pages → new-site equivalents ------------------
+# Pages that existed as real content on the old WordPress site and
+# have a clear home on the new Astro site. 301 to preserve link
+# equity from Google, business directories, and inbound links.
+/contacts/           /contact   301
+/contacts            /contact   301
+/our-staff/          /about     301
+/our-staff           /about     301
+/team/zarah-bellamy/ /about     301
+/team/zarah-bellamy  /about     301
+/our-pricing/        /services  301
+/our-pricing         /services  301
+/clients-review/     /reviews   301
+/clients-review      /reviews   301
+/faq/                /about     301
+/faq                 /about     301
+
+# --- WooCommerce paths (shop removed on new site) -------------------
+# The old site ran WooCommerce. The new site has no shop, so funnel
+# any indexed shop URLs to the homepage rather than 404.
+/shop/          /  301
+/shop           /  301
+/cart/          /  301
+/cart           /  301
+/checkout/      /  301
+/checkout       /  301
+/my-account/    /  301
+/my-account     /  301
+/wishlist-page/ /  301
+/wishlist-page  /  301
+/product/*      /  301
+
+# --- Old blog posts (flatten to /blog index) ------------------------
+# Only two real posts ever existed on the WordPress blog. Send them
+# to the blog index rather than 404.
+/a-simple-rule-to-follow-after-therapeutic-massages/ /blog 301
+/a-simple-rule-to-follow-after-therapeutic-massages  /blog 301
+/what-to-expect-from-a-deep-tissue-massage/          /blog 301
+/what-to-expect-from-a-deep-tissue-massage           /blog 301
+
+# --- Jacqueline theme demo portfolio CPT ----------------------------
+# The old theme shipped a "portfolio" custom post type with demo
+# content. Not real pages, but they were crawlable. Bounce to home.
+/portfolio/* / 301
