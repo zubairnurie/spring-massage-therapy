@@ -79,7 +79,28 @@ const descStr = locale === 'fr'
 
   {handle ? (
     <section class="max-w-5xl mx-auto px-4 pb-20">
-      <div id="cal-embed" class="bg-stone-50 rounded-sm border border-stone-200 overflow-hidden" style="min-width:320px;height:700px;"></div>
+      {/*
+        Cal.com embed container.
+
+        Cal.com's embed iframe self-resizes via postMessage to whatever
+        height its content needs. That works ONLY if the parent has no
+        fixed height fighting it — so we set a generous min-height
+        (enough that the spinner doesn't cause a layout flash) and let
+        the iframe push the container taller as needed.
+
+        On mobile the calendar and time-slots stack vertically, which
+        can be ~1200px tall. On desktop they sit side-by-side at
+        ~700px. The min-height is set with a clamp so we get a
+        reasonable starting size on both without capping growth.
+
+        overflow-hidden was removed for the same reason — it was
+        clipping the time-slot panel below the fold on mobile.
+      */}
+      <div
+        id="cal-embed"
+        class="bg-stone-50 rounded-sm border border-stone-200"
+        style="min-width:320px; min-height:clamp(560px, 90vh, 720px);"
+      ></div>
       <script is:inline define:vars={{ calLink, firstSlug: bookableServices[0]?.bookingSlug ?? '' }}>
         (function (C, A, L) {
           let p = function (a, ar) { a.q.push(ar); };
