@@ -124,47 +124,49 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
       </a>
     </div>
 
-    <!-- Compact Book Now for phones only.
+    <!-- Right-side group on phones: compact Book Now + hamburger.
          The desktop Book Now (above) appears at sm+. Below sm we'd
          otherwise have no inline CTA — users would need to open the
          hamburger to find Book Now, which buried the most important
-         action on the site. This compact button keeps it one tap away. -->
-    <a
-      href={localePath('/book', locale)}
-      class="sm:hidden inline-flex bg-coral-400 hover:bg-coral-500 text-white text-xs tracking-wider uppercase px-3.5 py-2 rounded-full transition"
-    >
-      {s.bookNow}
-    </a>
-
-    <!-- Mobile menu trigger — animated SVG: three lines morph into an X.
-         Visible whenever the desktop nav (md+) is hidden, so small
-         tablets between sm and md still get a way to navigate.
-         The aria-label is updated dynamically by the menu script below
-         so screen readers hear "Open menu" / "Close menu" appropriately. -->
-    <button
-      type="button"
-      id="mobile-menu-trigger"
-      class="md:hidden text-stone-700 w-10 h-10 leading-none flex items-center justify-center"
-      aria-label={locale === 'fr' ? 'Ouvrir le menu' : 'Open menu'}
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
-      <svg
-        id="mobile-menu-icon"
-        viewBox="0 0 24 24"
-        width="24"
-        height="24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        aria-hidden="true"
+         action on the site. Wrapped in a flex container so both stay
+         pinned to the right edge instead of being spread out by the
+         parent's justify-between. -->
+    <div class="md:hidden flex items-center gap-2">
+      <a
+        href={localePath('/book', locale)}
+        class="sm:hidden inline-flex bg-coral-400 hover:bg-coral-500 text-white text-xs tracking-wider uppercase px-3.5 py-2 rounded-full transition"
       >
-        <line class="menu-line menu-line-top" x1="4" y1="7" x2="20" y2="7" />
-        <line class="menu-line menu-line-mid" x1="4" y1="12" x2="20" y2="12" />
-        <line class="menu-line menu-line-btm" x1="4" y1="17" x2="20" y2="17" />
-      </svg>
-    </button>
+        {s.bookNow}
+      </a>
+
+      <!-- Mobile menu trigger — animated SVG: three lines morph into an X.
+           Visible whenever the desktop nav (md+) is hidden, so small
+           tablets between sm and md still get a way to navigate. -->
+      <button
+        type="button"
+        id="mobile-menu-trigger"
+        class="text-stone-700 w-10 h-10 leading-none flex items-center justify-center"
+        aria-label={locale === 'fr' ? 'Ouvrir le menu' : 'Open menu'}
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg
+          id="mobile-menu-icon"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <line class="menu-line menu-line-top" x1="4" y1="7" x2="20" y2="7" />
+          <line class="menu-line menu-line-mid" x1="4" y1="12" x2="20" y2="12" />
+          <line class="menu-line menu-line-btm" x1="4" y1="17" x2="20" y2="17" />
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 
