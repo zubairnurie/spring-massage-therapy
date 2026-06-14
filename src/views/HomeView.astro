@@ -203,18 +203,18 @@ const descStr = locale === 'fr'
       <div class="absolute inset-0 bg-gradient-to-b from-stone-100 via-stone-50 to-stone-50"></div>
     )}
     <div class="relative max-w-5xl mx-auto px-6 py-24 md:py-32 text-center">
-      <p class="hero-rise font-script text-coral-400 text-2xl md:text-3xl mb-3" style="--hero-delay: 700ms">{heroEyebrow}</p>
-      <h1 class="hero-rise font-serif text-4xl md:text-6xl tracking-wide mb-6 text-stone-700" style="--hero-delay: 900ms">
+      <p class="hero-rise font-script text-coral-400 text-2xl md:text-3xl mb-3" style="--hero-delay: 500ms">{heroEyebrow}</p>
+      <h1 class="hero-rise font-serif text-4xl md:text-6xl tracking-wide mb-6 text-stone-700" style="--hero-delay: 700ms">
         {heroTitle}
       </h1>
-      <div class="hero-rise w-16 h-px bg-coral-300 mx-auto mb-8" style="--hero-delay: 1100ms"></div>
-      <p class="hero-rise text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed italic whitespace-pre-line" style="--hero-delay: 1300ms">
+      <div class="hero-rise w-16 h-px bg-coral-300 mx-auto mb-8" style="--hero-delay: 900ms"></div>
+      <p class="hero-rise text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed italic whitespace-pre-line" style="--hero-delay: 1100ms">
         {heroBody}
       </p>
       {showFrFallbackNotice && (
-        <p class="hero-rise mt-6 text-xs text-stone-500 italic" style="--hero-delay: 1450ms">{s.translationComingSoon}</p>
+        <p class="hero-rise mt-6 text-xs text-stone-500 italic" style="--hero-delay: 1250ms">{s.translationComingSoon}</p>
       )}
-      <div class="hero-rise mt-10 flex flex-wrap gap-4 justify-center" style="--hero-delay: 1500ms">
+      <div class="hero-rise mt-10 flex flex-wrap gap-4 justify-center" style="--hero-delay: 1300ms">
         <a href={localePath(ctaPrimaryHref, locale)} class="bg-coral-400 hover:bg-coral-500 text-white tracking-wider uppercase text-sm px-8 py-3 rounded-full transition">
           {ctaPrimary}
         </a>
