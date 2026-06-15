@@ -281,9 +281,41 @@ const descStr = locale === 'fr'
     </div>
   </section>
 
+  {/*
+    Conditions / "What I help with" section.
+
+    Placed between Story and Pull-quote — high enough that someone
+    scrolling fast still sees it before the page slows into reviews
+    and services, but after Story so warm-traffic visitors get the
+    "this is a place" moment first.
+
+    Same warm bg-stone-100 as Featured Services below, picking up
+    an existing tone rather than introducing a third. Conditions and
+    Featured Services are conceptually paired ("what does she do"),
+    so visually echoing them reinforces that grouping. The cream
+    pull-quote between them prevents the two warm sections from
+    bleeding together.
+  */}
+  {renderConditions && (
+    <section class="bg-stone-100 py-20">
+      <div data-reveal class="max-w-3xl mx-auto px-6 text-center">
+        <p class="font-script text-coral-400 text-2xl mb-2">{conditionsEyebrow}</p>
+        <h2 class="font-serif text-3xl md:text-4xl mb-4 text-stone-700">{conditionsTitle}</h2>
+        <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
+        <ul class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-stone-600">
+          {conditions.map((c, i) => (
+            <Fragment>
+              {i > 0 && <span aria-hidden="true" class="text-stone-300 hidden sm:inline">·</span>}
+              <li class="text-base md:text-lg">{c}</li>
+            </Fragment>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   {pullQuote && (
     <>
-      <SectionDivider />
       <section class="relative bg-gradient-to-b from-stone-50 via-stone-100/40 to-stone-50 py-20">
       <div class="max-w-3xl mx-auto px-6 text-center">
         <p data-reveal class="font-serif italic text-2xl md:text-3xl text-stone-700 leading-relaxed">
@@ -300,35 +332,6 @@ const descStr = locale === 'fr'
       </div>
     </section>
     </>
-  )}
-
-  {/*
-    Conditions / "What I help with" section.
-
-    Plain list of common concerns clients arrive with. Sits between
-    pull-quote and Featured Services. Lets visitors who arrived with
-    a specific problem (back pain, stress, etc.) recognise themselves
-    immediately — addresses the "is this for me?" gut check.
-
-    Visual treatment intentionally restrained: no icons, no cards,
-    just clean centred text with subtle dividers. Stays in tone with
-    the rest of the home page; doesn't compete with the pull-quote
-    above or the services tiles below.
-  */}
-  {renderConditions && (
-    <section data-reveal class="max-w-3xl mx-auto px-6 py-16 text-center">
-      <p class="font-script text-coral-400 text-2xl mb-2">{conditionsEyebrow}</p>
-      <h2 class="font-serif text-3xl md:text-4xl mb-4 text-stone-700">{conditionsTitle}</h2>
-      <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
-      <ul class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-stone-600">
-        {conditions.map((c, i) => (
-          <Fragment>
-            {i > 0 && <span aria-hidden="true" class="text-stone-300 hidden sm:inline">·</span>}
-            <li class="text-base md:text-lg">{c}</li>
-          </Fragment>
-        ))}
-      </ul>
-    </section>
   )}
 
   <!-- Featured services -->
