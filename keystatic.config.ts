@@ -201,11 +201,13 @@ export default config({
           label: 'Studio photo 2 alt text',
           defaultValue: 'Spring Massage Therapy studio courtyard',
         }),
-        // Studio gallery turnstile. Add exactly 4 photos.
-        // Two are always visible (front + back, slightly receded);
-        // the other two cycle through every ~5 seconds, like a
-        // turnstile. If fewer than 4 are uploaded the section falls
-        // back to the legacy studioImage1 / studioImage2 layout above.
+        // Studio gallery — supports 2, 3, or 4 photos.
+        // Layout adapts:
+        //   2 → current staggered pair (one offset down)
+        //   3 → 2-column grid, taller photo on the right
+        //   4 → 2×2 grid with subtle vertical stagger
+        // If empty or only 1 photo, falls back to legacy
+        // studioImage1 / studioImage2 layout above.
         studioImages: fields.array(
           fields.object({
             image: fields.image({
@@ -219,8 +221,8 @@ export default config({
             }),
           }),
           {
-            label: 'Studio photos (turnstile gallery)',
-            description: 'Upload exactly 4 photos. Two are always visible; all four cycle through every few seconds. If you upload fewer than 4, the page falls back to the legacy two-photo layout.',
+            label: 'Studio photos',
+            description: 'Add 2, 3, or 4 photos. The layout adapts. If you only have 1, leave this empty and use the legacy fields above.',
             itemLabel: (props) => props.fields.alt.value || props.fields.image.value?.filename || 'Studio photo',
           },
         ),
