@@ -303,3 +303,42 @@ recovery) would help SEO meaningfully. If she's not into writing, we
 can hide the route entirely.
 
 **Status:** open
+
+### 19. Gift cards
+
+Her old WordPress site sold gift cards through WooCommerce. The new
+site has no gift card flow. Two questions:
+
+**(a)** Does she want to keep selling gift cards at all? Some
+practitioners drop them deliberately — they create admin overhead
+(tracking redemptions, handling lost codes, expiration disputes).
+Volume on a single-practitioner practice is usually low.
+
+**(b)** If yes, how transactional does she want it?
+
+- **Phone/email purchase** (recommended for low volume): a simple page
+  listing denominations ($50 / $100 / $150) with a "Call to purchase"
+  CTA. She handles payment via e-transfer or phone, mails or emails a
+  PDF voucher. Zero recurring cost. Probably right for now.
+- **Stripe Payment Links** (~2 hours of setup): real online payment,
+  she still manually emails the recipient a code or PDF after. Stripe
+  takes 2.9% + 30¢ per transaction, no monthly fee. Right when volume
+  picks up.
+- **Full gift card system** (Square / Shopify / Acuity gift
+  certificates): codes generate automatically, balances tracked,
+  redemption integrates with the booking platform. ~$30/month + much
+  more setup. Only makes sense at higher volume.
+
+**Where it lives on the site (assuming yes):** the main nav has 6
+links already (Home / Promotions / Services / Reviews / About /
+Contact) and shouldn't grow. Suggested placement:
+
+- The dedicated page lives at `/pages/gift-cards` via the existing
+  Keystatic Pages collection (already wired — she can add it herself).
+- A "Gift Cards" card on the **Promotions page** (year-round, not
+  seasonal) — pulls in people already browsing with spend intent.
+- A footer link for direct discoverability.
+- Optionally, a small "Gift cards available — call to purchase" line
+  near the bottom of the home page.
+
+**Status:** open
