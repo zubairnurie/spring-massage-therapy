@@ -38,9 +38,11 @@ studioImage1Alt: Spring Massage Therapy studio interior
 studioImage2Alt: Spring Massage Therapy studio courtyard
 studioImages:
   - image: /images/about/studioImages/0/image.webp
-    alt: Spring Massage Therapy studio
+    alt: Courtyard
   - image: /images/about/studioImages/1/image.webp
-    alt: Spring Massage Therapy studio
+    alt: Froggies
   - image: /images/about/studioImages/2/image.jpg
-    alt: Spring Massage Therapy studio
+    alt: Room
+  - image: /images/about/studioImages/3/image.jpg
+    alt: Street View
 mapAddress: 2229 Hawarden, Montréal, QC

@@ -201,23 +201,27 @@ const descStr = locale === 'fr'
     Turnstile gallery — CSS positions photos by their data-slot, JS just
     rotates the slot number. Four slots:
 
-      0 (front)     visible, lower-right, full size, full opacity, on top
-      1 (back)      visible, upper-left, smaller, dimmer, behind
-      2 (queue-out) hidden, faded out left (just exited from back)
-      3 (queue-in)  hidden, faded out right (about to enter at back)
+      0 (front)     visible, lower-right corner, full size, full opacity
+      1 (back)      visible, upper-left corner, slightly smaller
+      2 (q-near)    peeks out behind the back photo, opacity 0.25 — first
+                    in the queue, the one that arrives next
+      3 (q-far)     peeks out further behind, opacity 0.15 — deeper in
+                    the stack, arrives after q-near
 
-    Every tick, each photo's slot decrements modulo 4: front → queue-out,
-    queue-out → queue-in, queue-in → back, back → front. The photo
-    cycles between visible and offstage smoothly because the transitions
-    on transform/opacity run for ~1.4s.
+    Front and back don't overlap (sit at opposite corners). The queued
+    photos peek out from behind the back photo, like a deck of cards
+    stacked under it — so the user sees there's "more" coming.
 
-    The aspect ratio of the container is 5/4 (wider than tall) so the two
-    visible photos can sit side-by-side with overlap, like the reference
-    sketch.
+    On each tick, every photo's slot decrements modulo 4: front exits,
+    back promotes to front, q-near arrives at back, q-far steps forward
+    to q-near, and the previously-front loops back to q-far. CSS
+    handles all transforms and opacity changes; JS only flips the
+    data-slot attribute per photo.
   */}
   <style>
     .turnstile-photo {
-      width: 60%;
+      position: absolute;
+      width: 50%;
       aspect-ratio: 3 / 4;
       object-fit: cover;
       transition:
@@ -226,39 +230,39 @@ const descStr = locale === 'fr'
       will-change: transform, opacity;
     }
 
-    /* Front slot — bottom-right, large, on top */
+    /* Front slot — bottom-right corner, full size, on top */
     .turnstile-photo[data-slot="0"] {
-      top: 50%;
-      left: 50%;
-      transform: translate(-15%, -40%) scale(1);
+      bottom: 0;
+      right: 0;
+      transform: scale(1);
       opacity: 1;
       z-index: 4;
     }
 
-    /* Back slot — top-left, slightly smaller, dimmer, behind */
+    /* Back slot — top-left corner, slightly smaller, fully visible */
     .turnstile-photo[data-slot="1"] {
       top: 0;
       left: 0;
-      transform: translate(0, 0) scale(0.82);
-      opacity: 0.78;
+      transform: scale(0.88);
+      opacity: 0.95;
       z-index: 3;
     }
 
-    /* Queue-out — fading away to the left, just exited from back */
+    /* Queue (near) — peeking out behind the back photo, faded */
     .turnstile-photo[data-slot="2"] {
       top: 0;
       left: 0;
-      transform: translate(-30%, 5%) scale(0.7);
-      opacity: 0;
+      transform: translate(-7%, -7%) scale(0.78);
+      opacity: 0.28;
       z-index: 2;
     }
 
-    /* Queue-in — preparing to enter at back, faded in from the right */
+    /* Queue (far) — deeper in the stack, more faded */
     .turnstile-photo[data-slot="3"] {
-      top: 50%;
-      left: 50%;
-      transform: translate(20%, -30%) scale(0.7);
-      opacity: 0;
+      top: 0;
+      left: 0;
+      transform: translate(-13%, -13%) scale(0.7);
+      opacity: 0.15;
       z-index: 1;
     }
 
@@ -275,15 +279,17 @@ const descStr = locale === 'fr'
       if (!turnstile) return;
       const photos = Array.from(turnstile.querySelectorAll('.turnstile-photo'));
       if (photos.length !== 4) return;
-      // prefers-reduced-motion users get the static initial state — front
-      // and back visible, queue slots invisible. No setInterval.
+      // prefers-reduced-motion users get the static initial state.
+      // No setInterval, no rotation — just the deck, frozen.
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const interval = Math.max(2500, Number(turnstile.getAttribute('data-interval')) || 5000);
 
       function tick() {
         photos.forEach((p) => {
           const slot = Number(p.getAttribute('data-slot'));
-          const next = (slot + 3) % 4;  // -1 mod 4: front exits, back rotates forward, etc.
+          // -1 mod 4: front (0) → q-far (3), back (1) → front (0),
+          // q-near (2) → back (1), q-far (3) → q-near (2).
+          const next = (slot + 3) % 4;
           p.setAttribute('data-slot', String(next));
         });
       }
