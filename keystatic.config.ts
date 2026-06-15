@@ -184,7 +184,7 @@ export default config({
         studioBodyEn: fields.text({ label: 'About the studio — EN', multiline: true, defaultValue: '' }),
         studioBodyFr: fields.text({ label: 'About the studio — FR', multiline: true, defaultValue: '' }),
         studioImage1: fields.image({
-          label: 'Studio photo 1 (shared)',
+          label: 'Studio photo 1 (legacy — only used if Studio photos below is empty)',
           directory: 'public/images/about',
           publicPath: '/images/about/',
         }),
@@ -193,7 +193,7 @@ export default config({
           defaultValue: 'Spring Massage Therapy studio interior',
         }),
         studioImage2: fields.image({
-          label: 'Studio photo 2 (shared)',
+          label: 'Studio photo 2 (legacy — only used if Studio photos below is empty)',
           directory: 'public/images/about',
           publicPath: '/images/about/',
         }),
@@ -201,6 +201,29 @@ export default config({
           label: 'Studio photo 2 alt text',
           defaultValue: 'Spring Massage Therapy studio courtyard',
         }),
+        // Modern multi-photo gallery. Add 2 or more.
+        // - Exactly 2 photos: render the existing static two-frame layout.
+        // - 3 or more: the two visible frames each crossfade through the
+        //   uploaded photos. Calm, slow rotation — not a slideshow.
+        // If empty, falls back to studioImage1 / studioImage2 above.
+        studioImages: fields.array(
+          fields.object({
+            image: fields.image({
+              label: 'Studio photo',
+              directory: 'public/images/about',
+              publicPath: '/images/about/',
+            }),
+            alt: fields.text({
+              label: 'Alt text',
+              defaultValue: 'Spring Massage Therapy studio',
+            }),
+          }),
+          {
+            label: 'Studio photos',
+            description: 'Upload 2 or more. With 3+ the two visible frames slowly fade through the photos.',
+            itemLabel: (props) => props.fields.alt.value || props.fields.image.value?.filename || 'Studio photo',
+          },
+        ),
         mapAddress: fields.text({
           label: 'Map address',
           defaultValue: '2229 Hawarden, Montreal, QC',

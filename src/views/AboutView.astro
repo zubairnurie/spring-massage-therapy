@@ -17,6 +17,40 @@ const studio1Alt = (((about as any)?.studioImage1Alt ?? '') as string).trim()
 const studio2 = about?.studioImage2;
 const studio2Alt = (((about as any)?.studioImage2Alt ?? '') as string).trim()
   || 'Spring Massage Therapy studio courtyard';
+
+// Modern multi-photo gallery. The two visible frames in the layout below
+// each cycle through these photos with a slow crossfade. If only 2 are
+// uploaded, the layout stays static (current behaviour). If the array
+// is empty, fall back to the legacy studioImage1/studioImage2 fields so
+// existing content keeps working.
+const studioImagesRaw = (about as any)?.studioImages as Array<{ image?: string | null; alt?: string | null } | null | undefined> | undefined;
+const studioPhotos = (studioImagesRaw ?? [])
+  .map((entry) => {
+    if (!entry) return null;
+    const src = (entry.image ?? '').trim();
+    if (!src) return null;
+    const alt = (entry.alt ?? '').trim() || 'Spring Massage Therapy studio';
+    return { src, alt };
+  })
+  .filter((p): p is { src: string; alt: string } => !!p);
+
+const legacyPhotos = [
+  studio1 ? { src: studio1, alt: studio1Alt } : null,
+  studio2 ? { src: studio2, alt: studio2Alt } : null,
+].filter((p): p is { src: string; alt: string } => !!p);
+
+const galleryPhotos = studioPhotos.length >= 2 ? studioPhotos : legacyPhotos;
+const galleryRotates = galleryPhotos.length >= 3;
+// Slides for each of the two visible frames. Frame A takes the even
+// indices (0, 2, 4...), Frame B the odd indices (1, 3, 5...) so the
+// two frames don't fade in lockstep and their initial photos differ.
+// With 3 photos: A has [0,2], B has [1] (B stays static, A rotates).
+// With 4 photos: A has [0,2], B has [1,3] (both rotate).
+const frameASlides = galleryPhotos.filter((_, i) => i % 2 === 0);
+const frameBSlides = galleryPhotos.filter((_, i) => i % 2 === 1);
+const galleryIntervalMs = 5500;
+const galleryFadeMs = 1400;
+
 const mapAddress = about?.mapAddress ?? '2229 Hawarden, Montreal, QC';
 const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
 
@@ -95,11 +129,65 @@ const descStr = locale === 'fr'
         <p class="italic text-stone-500 mt-6">{s.hiddenGem}</p>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div data-reveal style="--reveal-delay: 140ms" class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
-          {studio1 ? <img src={studio1} alt={studio1Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Studio</span>}
+        {/*
+          Two stacked frames. Each frame either holds a single static image
+          (when only 2 photos are uploaded — legacy behaviour) or a stack
+          of imgs that crossfade in sequence (when 3+ photos are uploaded).
+          The crossfade is driven by a small inline script at the bottom
+          of this section. The two frames offset their first photo so
+          they don't visually fade in lockstep.
+        */}
+        <div
+          data-reveal
+          style="--reveal-delay: 140ms"
+          class="studio-frame relative aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm"
+          data-studio-frame={galleryRotates && frameASlides.length > 1 ? 'a' : null}
+          data-interval={galleryIntervalMs}
+          data-fade={galleryFadeMs}
+        >
+          {frameASlides.length > 0 ? (
+            frameASlides.map((p, i) => (
+              <img
+                src={p.src}
+                alt={p.alt}
+                class:list={[
+                  'studio-slide absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out',
+                  i === 0 ? 'opacity-100' : 'opacity-0',
+                ]}
+                style={`transition-duration: ${galleryFadeMs}ms`}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            ))
+          ) : (
+            <span>Studio</span>
+          )}
         </div>
-        <div data-reveal style="--reveal-delay: 280ms" class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
-          {studio2 ? <img src={studio2} alt={studio2Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Courtyard</span>}
+        <div
+          data-reveal
+          style="--reveal-delay: 280ms"
+          class="studio-frame relative aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm"
+          data-studio-frame={galleryRotates && frameBSlides.length > 1 ? 'b' : null}
+          data-interval={galleryIntervalMs}
+          data-fade={galleryFadeMs}
+        >
+          {frameBSlides.length > 0 ? (
+            frameBSlides.map((p, i) => (
+              <img
+                src={p.src}
+                alt={p.alt}
+                class:list={[
+                  'studio-slide absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out',
+                  i === 0 ? 'opacity-100' : 'opacity-0',
+                ]}
+                style={`transition-duration: ${galleryFadeMs}ms`}
+                loading="lazy"
+                decoding="async"
+              />
+            ))
+          ) : (
+            <span>Courtyard</span>
+          )}
         </div>
       </div>
     </div>
@@ -136,4 +224,48 @@ const descStr = locale === 'fr'
       </a>
     </div>
   </section>
+
+  {/*
+    Studio gallery crossfade.
+
+    Each frame with `data-studio-frame` set has 2+ photos that should
+    rotate. Tick on the interval set in `data-interval`; the photos
+    themselves carry a CSS transition-duration matching `data-fade` so
+    setting opacity classes here is enough — no JS animation.
+
+    Frame "a" and frame "b" each tick at the same interval, but frame
+    b is offset by half the interval at start so they don't crossfade
+    in lockstep. Result feels like two slow, lazy slideshows breathing
+    independently.
+
+    `prefers-reduced-motion` users see only the first photo, never
+    triggered (no setInterval).
+  */}
+  <script is:inline>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const frames = document.querySelectorAll('[data-studio-frame]');
+      frames.forEach((frame) => {
+        const slides = frame.querySelectorAll('.studio-slide');
+        if (slides.length < 2) return;
+        const interval = Math.max(2000, Number(frame.getAttribute('data-interval')) || 5500);
+        const which = frame.getAttribute('data-studio-frame');
+        let current = 0;
+
+        function tick() {
+          const next = (current + 1) % slides.length;
+          slides[current].classList.remove('opacity-100');
+          slides[current].classList.add('opacity-0');
+          slides[next].classList.remove('opacity-0');
+          slides[next].classList.add('opacity-100');
+          current = next;
+        }
+
+        // Frame B starts half a cycle out of phase with frame A so
+        // the two visible frames never crossfade at the same moment.
+        const initialDelay = which === 'b' ? interval / 2 : 0;
+        setTimeout(() => setInterval(tick, interval), initialDelay);
+      });
+    })();
+  </script>
 </BaseLayout>
