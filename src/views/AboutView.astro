@@ -104,7 +104,7 @@ const descStr = locale === 'fr'
 
   <!-- About the Studio -->
   <section class="bg-stone-100 py-20">
-    <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-[1fr_1.3fr] gap-12 items-center">
+    <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
       <div data-reveal>
         <p class="font-script text-coral-400 text-2xl mb-2">{s.aPeacefulRetreat}</p>
         <h2 class="font-serif text-3xl md:text-4xl mb-6">{s.aboutTheStudio}</h2>
@@ -164,11 +164,9 @@ const descStr = locale === 'fr'
       {galleryCount === 2 && (
         /*
           2 photos: existing staggered pair. Right photo offset down
-          to match the original layout users are used to. Section
-          ratio is tilted (1fr text / 1.3fr photos) so the photos
-          read as the centrepiece, not a thumbnail strip.
+          to match the original layout users are used to.
         */
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div data-reveal style="--reveal-delay: 140ms" class="aspect-[3/4] bg-stone-200 overflow-hidden">
             <img src={studioPhotos[0].src} alt={studioPhotos[0].alt} class="w-full h-full object-cover" loading="lazy" decoding="async" />
           </div>
@@ -184,7 +182,7 @@ const descStr = locale === 'fr'
           only 1 photo. Reads from the old studioImage1 / studioImage2
           fields so existing content keeps working untouched.
         */
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div data-reveal style="--reveal-delay: 140ms" class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
             {studio1 ? <img src={studio1} alt={studio1Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Studio</span>}
           </div>
