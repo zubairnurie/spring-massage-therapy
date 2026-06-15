@@ -34,8 +34,13 @@ studioBodyEn: >-
   Just outside, a lush front courtyard welcomes not only clients but also the
   animals and small creatures that stop by to rest. We've created a gentle space
   for them too — fresh water set out among the plants and shade.
-studioImage1: /images/about/studioImage1.jpg
 studioImage1Alt: Spring Massage Therapy studio interior
-studioImage2: /images/about/studioImage2.jpg
 studioImage2Alt: Spring Massage Therapy studio courtyard
+studioImages:
+  - image: /images/about/studioImages/0/image.webp
+    alt: Spring Massage Therapy studio
+  - image: /images/about/studioImages/1/image.webp
+    alt: Spring Massage Therapy studio
+  - image: /images/about/studioImages/2/image.jpg
+    alt: Spring Massage Therapy studio
 mapAddress: 2229 Hawarden, Montréal, QC

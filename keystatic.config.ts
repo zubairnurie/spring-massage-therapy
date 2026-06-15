@@ -201,11 +201,11 @@ export default config({
           label: 'Studio photo 2 alt text',
           defaultValue: 'Spring Massage Therapy studio courtyard',
         }),
-        // Modern multi-photo gallery. Add 2 or more.
-        // - Exactly 2 photos: render the existing static two-frame layout.
-        // - 3 or more: the two visible frames each crossfade through the
-        //   uploaded photos. Calm, slow rotation — not a slideshow.
-        // If empty, falls back to studioImage1 / studioImage2 above.
+        // Studio gallery turnstile. Add exactly 4 photos.
+        // Two are always visible (front + back, slightly receded);
+        // the other two cycle through every ~5 seconds, like a
+        // turnstile. If fewer than 4 are uploaded the section falls
+        // back to the legacy studioImage1 / studioImage2 layout above.
         studioImages: fields.array(
           fields.object({
             image: fields.image({
@@ -219,8 +219,8 @@ export default config({
             }),
           }),
           {
-            label: 'Studio photos',
-            description: 'Upload 2 or more. With 3+ the two visible frames slowly fade through the photos.',
+            label: 'Studio photos (turnstile gallery)',
+            description: 'Upload exactly 4 photos. Two are always visible; all four cycle through every few seconds. If you upload fewer than 4, the page falls back to the legacy two-photo layout.',
             itemLabel: (props) => props.fields.alt.value || props.fields.image.value?.filename || 'Studio photo',
           },
         ),

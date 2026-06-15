@@ -18,11 +18,11 @@ const studio2 = about?.studioImage2;
 const studio2Alt = (((about as any)?.studioImage2Alt ?? '') as string).trim()
   || 'Spring Massage Therapy studio courtyard';
 
-// Modern multi-photo gallery. The two visible frames in the layout below
-// each cycle through these photos with a slow crossfade. If only 2 are
-// uploaded, the layout stays static (current behaviour). If the array
-// is empty, fall back to the legacy studioImage1/studioImage2 fields so
-// existing content keeps working.
+// Studio gallery turnstile. Requires exactly 4 photos to activate.
+// Two are always visible (front + back, the back receded); on each
+// tick all photos rotate one position around a 4-position carousel:
+// front → exit → queue-in → back → front. Falls back to the legacy
+// studioImage1/2 layout if fewer than 4 are uploaded.
 const studioImagesRaw = (about as any)?.studioImages as Array<{ image?: string | null; alt?: string | null } | null | undefined> | undefined;
 const studioPhotos = (studioImagesRaw ?? [])
   .map((entry) => {
@@ -34,22 +34,9 @@ const studioPhotos = (studioImagesRaw ?? [])
   })
   .filter((p): p is { src: string; alt: string } => !!p);
 
-const legacyPhotos = [
-  studio1 ? { src: studio1, alt: studio1Alt } : null,
-  studio2 ? { src: studio2, alt: studio2Alt } : null,
-].filter((p): p is { src: string; alt: string } => !!p);
-
-const galleryPhotos = studioPhotos.length >= 2 ? studioPhotos : legacyPhotos;
-const galleryRotates = galleryPhotos.length >= 3;
-// Slides for each of the two visible frames. Frame A takes the even
-// indices (0, 2, 4...), Frame B the odd indices (1, 3, 5...) so the
-// two frames don't fade in lockstep and their initial photos differ.
-// With 3 photos: A has [0,2], B has [1] (B stays static, A rotates).
-// With 4 photos: A has [0,2], B has [1,3] (both rotate).
-const frameASlides = galleryPhotos.filter((_, i) => i % 2 === 0);
-const frameBSlides = galleryPhotos.filter((_, i) => i % 2 === 1);
-const galleryIntervalMs = 5500;
-const galleryFadeMs = 1400;
+// Strict 4: anything else uses the legacy two-photo static layout.
+const useTurnstile = studioPhotos.length === 4;
+const turnstileIntervalMs = 5000;
 
 const mapAddress = about?.mapAddress ?? '2229 Hawarden, Montreal, QC';
 const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
@@ -128,68 +115,53 @@ const descStr = locale === 'fr'
         </div>
         <p class="italic text-stone-500 mt-6">{s.hiddenGem}</p>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        {/*
-          Two stacked frames. Each frame either holds a single static image
-          (when only 2 photos are uploaded — legacy behaviour) or a stack
-          of imgs that crossfade in sequence (when 3+ photos are uploaded).
-          The crossfade is driven by a small inline script at the bottom
-          of this section. The two frames offset their first photo so
-          they don't visually fade in lockstep.
-        */}
+      {useTurnstile ? (
+        /*
+          Turnstile gallery (4 photos exactly).
+
+          One container holding all 4 photos absolutely positioned. Each
+          photo carries a `data-slot` attribute (0 = front, 1 = back,
+          2 = queue-out, 3 = queue-in). CSS positions each slot; JS
+          ticks every 5s by decrementing each photo's slot number
+          modulo 4 — front exits, back rotates to front, queue-in
+          rotates to back, queue-out wraps to queue-in.
+
+          The whole transition is just CSS — opacity, transform, scale.
+          JS only updates one attribute per photo per tick. No layout
+          thrash, no rAF loop running continuously.
+        */
         <div
-          data-reveal
-          style="--reveal-delay: 140ms"
-          class="studio-frame relative aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm"
-          data-studio-frame={galleryRotates && frameASlides.length > 1 ? 'a' : null}
-          data-interval={galleryIntervalMs}
-          data-fade={galleryFadeMs}
+          class="turnstile relative w-full aspect-[5/4]"
+          data-turnstile
+          data-interval={turnstileIntervalMs}
+          aria-label="Studio photo gallery"
         >
-          {frameASlides.length > 0 ? (
-            frameASlides.map((p, i) => (
-              <img
-                src={p.src}
-                alt={p.alt}
-                class:list={[
-                  'studio-slide absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out',
-                  i === 0 ? 'opacity-100' : 'opacity-0',
-                ]}
-                style={`transition-duration: ${galleryFadeMs}ms`}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            ))
-          ) : (
-            <span>Studio</span>
-          )}
+          {studioPhotos.map((p, i) => (
+            <img
+              src={p.src}
+              alt={p.alt}
+              class="turnstile-photo absolute object-cover shadow-card-hover"
+              data-slot={i}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          ))}
         </div>
-        <div
-          data-reveal
-          style="--reveal-delay: 280ms"
-          class="studio-frame relative aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm"
-          data-studio-frame={galleryRotates && frameBSlides.length > 1 ? 'b' : null}
-          data-interval={galleryIntervalMs}
-          data-fade={galleryFadeMs}
-        >
-          {frameBSlides.length > 0 ? (
-            frameBSlides.map((p, i) => (
-              <img
-                src={p.src}
-                alt={p.alt}
-                class:list={[
-                  'studio-slide absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out',
-                  i === 0 ? 'opacity-100' : 'opacity-0',
-                ]}
-                style={`transition-duration: ${galleryFadeMs}ms`}
-                loading="lazy"
-                decoding="async"
-              />
-            ))
-          ) : (
-            <span>Courtyard</span>
-          )}
+      ) : (
+        <div class="grid grid-cols-2 gap-3">
+          {/*
+            Legacy two-photo layout. Used when fewer than 4 photos are in
+            the studioImages array — including the (currently common)
+            case where Zarah hasn't migrated her two old photos yet.
+          */}
+          <div data-reveal style="--reveal-delay: 140ms" class="aspect-[3/4] bg-stone-200 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+            {studio1 ? <img src={studio1} alt={studio1Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Studio</span>}
+          </div>
+          <div data-reveal style="--reveal-delay: 280ms" class="aspect-[3/4] bg-stone-200 mt-8 overflow-hidden flex items-center justify-center text-stone-400 italic text-sm">
+            {studio2 ? <img src={studio2} alt={studio2Alt} class="w-full h-full object-cover" loading="lazy" decoding="async" /> : <span>Courtyard</span>}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   </section>
 
@@ -226,46 +198,97 @@ const descStr = locale === 'fr'
   </section>
 
   {/*
-    Studio gallery crossfade.
+    Turnstile gallery — CSS positions photos by their data-slot, JS just
+    rotates the slot number. Four slots:
 
-    Each frame with `data-studio-frame` set has 2+ photos that should
-    rotate. Tick on the interval set in `data-interval`; the photos
-    themselves carry a CSS transition-duration matching `data-fade` so
-    setting opacity classes here is enough — no JS animation.
+      0 (front)     visible, lower-right, full size, full opacity, on top
+      1 (back)      visible, upper-left, smaller, dimmer, behind
+      2 (queue-out) hidden, faded out left (just exited from back)
+      3 (queue-in)  hidden, faded out right (about to enter at back)
 
-    Frame "a" and frame "b" each tick at the same interval, but frame
-    b is offset by half the interval at start so they don't crossfade
-    in lockstep. Result feels like two slow, lazy slideshows breathing
-    independently.
+    Every tick, each photo's slot decrements modulo 4: front → queue-out,
+    queue-out → queue-in, queue-in → back, back → front. The photo
+    cycles between visible and offstage smoothly because the transitions
+    on transform/opacity run for ~1.4s.
 
-    `prefers-reduced-motion` users see only the first photo, never
-    triggered (no setInterval).
+    The aspect ratio of the container is 5/4 (wider than tall) so the two
+    visible photos can sit side-by-side with overlap, like the reference
+    sketch.
   */}
+  <style>
+    .turnstile-photo {
+      width: 60%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      transition:
+        transform 1400ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        opacity 1400ms ease-in-out;
+      will-change: transform, opacity;
+    }
+
+    /* Front slot — bottom-right, large, on top */
+    .turnstile-photo[data-slot="0"] {
+      top: 50%;
+      left: 50%;
+      transform: translate(-15%, -40%) scale(1);
+      opacity: 1;
+      z-index: 4;
+    }
+
+    /* Back slot — top-left, slightly smaller, dimmer, behind */
+    .turnstile-photo[data-slot="1"] {
+      top: 0;
+      left: 0;
+      transform: translate(0, 0) scale(0.82);
+      opacity: 0.78;
+      z-index: 3;
+    }
+
+    /* Queue-out — fading away to the left, just exited from back */
+    .turnstile-photo[data-slot="2"] {
+      top: 0;
+      left: 0;
+      transform: translate(-30%, 5%) scale(0.7);
+      opacity: 0;
+      z-index: 2;
+    }
+
+    /* Queue-in — preparing to enter at back, faded in from the right */
+    .turnstile-photo[data-slot="3"] {
+      top: 50%;
+      left: 50%;
+      transform: translate(20%, -30%) scale(0.7);
+      opacity: 0;
+      z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .turnstile-photo {
+        transition: none;
+      }
+    }
+  </style>
+
   <script is:inline>
     (function () {
+      const turnstile = document.querySelector('[data-turnstile]');
+      if (!turnstile) return;
+      const photos = Array.from(turnstile.querySelectorAll('.turnstile-photo'));
+      if (photos.length !== 4) return;
+      // prefers-reduced-motion users get the static initial state — front
+      // and back visible, queue slots invisible. No setInterval.
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const frames = document.querySelectorAll('[data-studio-frame]');
-      frames.forEach((frame) => {
-        const slides = frame.querySelectorAll('.studio-slide');
-        if (slides.length < 2) return;
-        const interval = Math.max(2000, Number(frame.getAttribute('data-interval')) || 5500);
-        const which = frame.getAttribute('data-studio-frame');
-        let current = 0;
+      const interval = Math.max(2500, Number(turnstile.getAttribute('data-interval')) || 5000);
 
-        function tick() {
-          const next = (current + 1) % slides.length;
-          slides[current].classList.remove('opacity-100');
-          slides[current].classList.add('opacity-0');
-          slides[next].classList.remove('opacity-0');
-          slides[next].classList.add('opacity-100');
-          current = next;
-        }
+      function tick() {
+        photos.forEach((p) => {
+          const slot = Number(p.getAttribute('data-slot'));
+          const next = (slot + 3) % 4;  // -1 mod 4: front exits, back rotates forward, etc.
+          p.setAttribute('data-slot', String(next));
+        });
+      }
 
-        // Frame B starts half a cycle out of phase with frame A so
-        // the two visible frames never crossfade at the same moment.
-        const initialDelay = which === 'b' ? interval / 2 : 0;
-        setTimeout(() => setInterval(tick, interval), initialDelay);
-      });
+      setInterval(tick, interval);
     })();
   </script>
 </BaseLayout>
