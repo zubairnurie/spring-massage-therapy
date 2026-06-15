@@ -12,6 +12,13 @@ const phone = contact?.phone ?? '(579) 366-4118';
 const phoneHref = 'tel:' + phone.replace(/[^0-9+]/g, '');
 const handle = contact?.bookingHandle?.trim() ?? '';
 
+// Pull the insurance flag from About so the booking page can echo it.
+// Many Canadians filter on whether receipts are available before
+// committing to book — surfacing it here removes a potential blocker
+// at the highest-intent moment.
+const about = await reader.singletons.about.read();
+const insuranceReceipts = (about as any)?.insuranceReceiptsAvailable !== false;
+
 const allServices = await reader.collections.services.all();
 const bookableServices = allServices
   .map(svc => {
@@ -53,6 +60,11 @@ const descStr = locale === 'fr'
     <p class="text-stone-600 max-w-xl mx-auto mb-2">
       {s.pickATime} <a href={phoneHref} class="text-coral-500 hover:underline">{phone}</a>.
     </p>
+    {insuranceReceipts && (
+      <p class="text-xs uppercase tracking-widest text-stone-500 mt-4">
+        {locale === 'fr' ? '✓ Reçus disponibles pour assurances' : '✓ Receipts available for insurance reimbursement'}
+      </p>
+    )}
   </section>
 
   {handle && bookableServices.length > 0 && (

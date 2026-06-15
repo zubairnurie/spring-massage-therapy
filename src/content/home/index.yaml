@@ -38,3 +38,17 @@ storyImageAlt: Heritage Tudor manor housing Spring Massage Therapy
 showTrustStrip: true
 showPullQuote: true
 pullQuoteReview: asaf-salem
+showConditions: true
+conditionsTitleEn: What I help with
+conditionsTitleFr: Ce avec quoi je peux aider
+conditionsEyebrowEn: Common concerns
+conditionsEyebrowFr: Préoccupations courantes
+conditions:
+  - labelEn: Deep tissue tension & knots
+    labelFr: Tensions profondes et nœuds musculaires
+  - labelEn: Back & shoulder stiffness
+    labelFr: Raideurs du dos et des épaules
+  - labelEn: Stress & full-body relaxation
+    labelFr: Stress et détente complète du corps
+  - labelEn: Sleep & recovery support
+    labelFr: Sommeil et récupération

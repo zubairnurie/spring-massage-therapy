@@ -121,10 +121,13 @@ if (googleRating && googleReviewCount) {
 } else if (googleRating) {
   trustFacts.push(`${googleRating}★ ${locale === 'fr' ? 'sur Google' : 'on Google'}`);
 }
-trustFacts.push(locale === 'fr' ? 'Ouvert tous les jours · 8h–21h' : 'Open daily · 8 AM – 9 PM');
+// Insurance receipts surfaced early — many Canadians filter on whether a
+// practitioner provides receipts for reimbursement before booking.
+// Better here than as a trailing footnote.
 if (insuranceReceipts) {
   trustFacts.push(locale === 'fr' ? 'Reçus pour assurances' : 'Receipts for insurance');
 }
+trustFacts.push(locale === 'fr' ? 'Ouvert tous les jours · 8h–21h' : 'Open daily · 8 AM – 9 PM');
 const renderTrustStrip = showTrustStrip && trustFacts.length > 0;
 
 // --- Pull-quote -----------------------------------------------------
@@ -145,6 +148,26 @@ if (showPullQuote && pullQuoteRef) {
     };
   }
 }
+
+// --- Conditions / "What I help with" -------------------------------
+// A short list of common concerns — answers "can this person help me
+// with what I'm dealing with?" for visitors arriving with a specific
+// problem (back pain, stress, etc.). Renders between the Story and
+// Featured Services sections. Hidden if showConditions is unticked
+// or if the list is empty.
+const showConditions = (home as any)?.showConditions !== false;
+const conditionsRaw = (home as any)?.conditions as Array<{ labelEn?: string | null; labelFr?: string | null }> | undefined;
+const conditions = (conditionsRaw ?? [])
+  .map((c) => {
+    const en = (c?.labelEn ?? '').trim();
+    const fr = (c?.labelFr ?? '').trim();
+    if (!en) return null;
+    return locale === 'fr' && fr ? fr : en;
+  })
+  .filter((s): s is string => !!s);
+const conditionsTitle = t(home, 'conditionsTitle', locale, 'What I help with');
+const conditionsEyebrow = t(home, 'conditionsEyebrow', locale, 'Common concerns');
+const renderConditions = showConditions && conditions.length > 0;
 
 const heroEyebrow = t(home, 'heroEyebrow', locale, 'Welcome to our');
 const heroTitle = t(home, 'heroTitle', locale, 'Spring Massage Therapy');
@@ -277,6 +300,35 @@ const descStr = locale === 'fr'
       </div>
     </section>
     </>
+  )}
+
+  {/*
+    Conditions / "What I help with" section.
+
+    Plain list of common concerns clients arrive with. Sits between
+    pull-quote and Featured Services. Lets visitors who arrived with
+    a specific problem (back pain, stress, etc.) recognise themselves
+    immediately — addresses the "is this for me?" gut check.
+
+    Visual treatment intentionally restrained: no icons, no cards,
+    just clean centred text with subtle dividers. Stays in tone with
+    the rest of the home page; doesn't compete with the pull-quote
+    above or the services tiles below.
+  */}
+  {renderConditions && (
+    <section data-reveal class="max-w-3xl mx-auto px-6 py-16 text-center">
+      <p class="font-script text-coral-400 text-2xl mb-2">{conditionsEyebrow}</p>
+      <h2 class="font-serif text-3xl md:text-4xl mb-4 text-stone-700">{conditionsTitle}</h2>
+      <div class="w-16 h-px bg-coral-300 mx-auto mb-8"></div>
+      <ul class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-stone-600">
+        {conditions.map((c, i) => (
+          <Fragment>
+            {i > 0 && <span aria-hidden="true" class="text-stone-300 hidden sm:inline">·</span>}
+            <li class="text-base md:text-lg">{c}</li>
+          </Fragment>
+        ))}
+      </ul>
+    </section>
   )}
 
   <!-- Featured services -->

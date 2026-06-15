@@ -139,6 +139,42 @@ export default config({
           description: 'Pick which review to feature as the big pull-quote. The selected review still also appears in the carousel.',
           collection: 'reviews',
         }),
+        // Conditions / outcomes section — answers "can this person help
+        // ME with what I'm dealing with?" for visitors arriving with a
+        // specific concern (back pain, stress, etc.). Sits between the
+        // Story and Featured Services on the home page.
+        showConditions: fields.checkbox({
+          label: 'Show "What I help with" section on home page',
+          description: 'A short list of common concerns clients come for (back pain, stress, headaches, etc.). Helps visitors with a specific problem know they\'re in the right place. Untick to hide.',
+          defaultValue: true,
+        }),
+        conditionsTitleEn: fields.text({
+          label: 'Conditions section title — EN',
+          defaultValue: 'What I help with',
+        }),
+        conditionsTitleFr: fields.text({
+          label: 'Conditions section title — FR',
+          defaultValue: 'Ce avec quoi je peux aider',
+        }),
+        conditionsEyebrowEn: fields.text({
+          label: 'Conditions section eyebrow — EN',
+          defaultValue: 'Common concerns',
+        }),
+        conditionsEyebrowFr: fields.text({
+          label: 'Conditions section eyebrow — FR',
+          defaultValue: 'Préoccupations courantes',
+        }),
+        conditions: fields.array(
+          fields.object({
+            labelEn: fields.text({ label: 'Item — EN' }),
+            labelFr: fields.text({ label: 'Item — FR (optional)', defaultValue: '' }),
+          }),
+          {
+            label: 'Conditions list',
+            description: 'Short, plain list of what clients come to you for. 4–6 items reads best. Keep each one a few words. Examples: "Back & shoulder tension", "Stress & deep relaxation", "Sleep & recovery support". Edit, remove, or add freely — these defaults are based on your existing reviews.',
+            itemLabel: (props) => props.fields.labelEn.value || 'New item',
+          },
+        ),
       },
     }),
     about: singleton({
