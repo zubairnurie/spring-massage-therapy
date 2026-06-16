@@ -393,23 +393,39 @@ const otherLocaleHref = hasLocaleEquivalent(cleanPath, otherLocale)
 
 <script is:inline>
   // Compact header on scroll.
-  // Toggle a `data-scrolled` attribute on <header> once the user has
-  // scrolled past the threshold. The 80px threshold is enough to be
-  // comfortably out of any hero eyebrow line but small enough that the
-  // collapse happens early — premium sites do this almost immediately.
+  //
+  // Two thresholds (hysteresis) instead of one. With a single
+  // threshold, scrolling to *exactly* the boundary creates a
+  // feedback loop:
+  //   1. user scrolls past threshold → header collapses
+  //   2. header collapsing shrinks the document → scrollY may drop
+  //      back below threshold → header expands
+  //   3. header expanding grows the document → scrollY climbs back
+  //      above threshold → header collapses
+  //   ...rapid flickering ("seizure") until something breaks the loop.
+  //
+  // The fix is a thermostat-style deadband: collapse going down at
+  // 120px, expand going up at 60px. Anywhere in 60-120 the state
+  // is sticky to whatever it was — so once collapsed, stays
+  // collapsed unless the user actually scrolls back significantly.
   (function () {
     const header = document.querySelector('.site-header');
     if (!header) return;
-    const THRESHOLD = 80;
+    const COLLAPSE_AT = 120;   // scroll past this → header compacts
+    const EXPAND_AT = 60;      // scroll back above this → header expands
     let scheduled = false;
 
     function update() {
       scheduled = false;
-      if (window.scrollY > THRESHOLD) {
+      const y = window.scrollY;
+      const isCollapsed = header.hasAttribute('data-scrolled');
+      if (!isCollapsed && y > COLLAPSE_AT) {
         header.setAttribute('data-scrolled', '');
-      } else {
+      } else if (isCollapsed && y < EXPAND_AT) {
         header.removeAttribute('data-scrolled');
       }
+      // Otherwise (y between thresholds, or already in correct state),
+      // do nothing — preserves whichever state we're already in.
     }
 
     window.addEventListener('scroll', () => {
