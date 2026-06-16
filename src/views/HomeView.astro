@@ -201,24 +201,41 @@ const descStr = locale === 'fr'
   <section class="relative overflow-hidden">
     {slides.length > 0 ? (
       <>
+        {/*
+          Hero slideshow.
+
+          Only slide 0 is rendered server-side, with eager loading.
+          The remaining slides' src/alt are passed to JS via the
+          `data-extra-slides` JSON attribute. After page load + a 3s
+          delay (well past LCP — the largest contentful paint that
+          Google measures), JS injects the additional <img> tags so
+          they begin downloading. Without this, all slides are
+          requested at once and compete with the critical hero image
+          for bandwidth — which the site noticeably did before, since
+          `loading="lazy"` is ignored on imgs that are technically
+          in-viewport (all slides are absolute-positioned, fully
+          contained in the hero, so the browser sees them as
+          visible regardless of opacity).
+
+          The setInterval rotation logic (further down in this
+          template's <script>) automatically picks up the injected
+          slides once they arrive in the DOM.
+        */}
         <div
           class="absolute inset-0"
           data-hero-slideshow
           data-interval={heroIntervalMs}
+          data-extra-slides={JSON.stringify(slides.slice(1))}
         >
-          {slides.map((slide, i) => (
-            <img
-              src={slide.src}
-              alt={slide.alt}
-              class:list={[
-                'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out',
-                i === 0 ? 'opacity-100' : 'opacity-0',
-              ]}
-              data-hero-slide
-              loading={i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-            />
-          ))}
+          <img
+            src={slides[0].src}
+            alt={slides[0].alt}
+            class="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out opacity-100"
+            data-hero-slide
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
         <div class="absolute inset-0 bg-stone-50/80 backdrop-blur-[1px]"></div>
       </>
@@ -452,19 +469,62 @@ const descStr = locale === 'fr'
     (function () {
       const root = document.querySelector('[data-hero-slideshow]');
       if (!root) return;
-      const slides = root.querySelectorAll('[data-hero-slide]');
-      if (slides.length < 2) return;
       const interval = Math.max(2000, Number(root.getAttribute('data-interval')) || 6000);
-      let current = 0;
-      const tick = function () {
-        const next = (current + 1) % slides.length;
-        slides[current].classList.remove('opacity-100');
-        slides[current].classList.add('opacity-0');
-        slides[next].classList.remove('opacity-0');
-        slides[next].classList.add('opacity-100');
-        current = next;
-      };
-      setInterval(tick, interval);
+
+      // --- Deferred slide injection -----------------------------------
+      // Only slide 0 is rendered server-side. After a delay we inject
+      // the remaining slides so they don't compete with critical hero
+      // assets for bandwidth at first paint. The 3000ms threshold puts
+      // the load well past LCP on any reasonable connection.
+      const extraJson = root.getAttribute('data-extra-slides');
+      let extras = [];
+      try {
+        extras = extraJson ? JSON.parse(extraJson) : [];
+      } catch (e) {
+        extras = [];
+      }
+
+      function injectExtras() {
+        extras.forEach(function (s) {
+          if (!s || !s.src) return;
+          const img = document.createElement('img');
+          img.src = s.src;
+          img.alt = s.alt || '';
+          img.className = 'absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ease-in-out opacity-0';
+          img.setAttribute('data-hero-slide', '');
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          root.appendChild(img);
+        });
+      }
+
+      function startRotation() {
+        const slides = root.querySelectorAll('[data-hero-slide]');
+        if (slides.length < 2) return;
+        let current = 0;
+        setInterval(function () {
+          const next = (current + 1) % slides.length;
+          slides[current].classList.remove('opacity-100');
+          slides[current].classList.add('opacity-0');
+          slides[next].classList.remove('opacity-0');
+          slides[next].classList.add('opacity-100');
+          current = next;
+        }, interval);
+      }
+
+      // Defer extra slide loading until the browser is idle (or 3s
+      // max), then start the rotation. Use requestIdleCallback when
+      // available — it fires once the main thread is free, which is
+      // strictly after LCP on every browser that supports it.
+      function ready() {
+        injectExtras();
+        startRotation();
+      }
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(ready, { timeout: 3000 });
+      } else {
+        setTimeout(ready, 3000);
+      }
     })();
   </script>
 </BaseLayout>
