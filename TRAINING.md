@@ -579,7 +579,9 @@ Zubair.
 ### "The live site looks broken"
 
 If `springmassagetherapy.ca` itself isn't loading or looks wrong, message
-Zubair right away. Don't try to fix it from the admin.
+Zubair right away. Don't try to fix it from the admin. Once the site is live,
+we will set a monitoring tool that will immediately notify us if the site is
+ever down.
 
 ---
 
@@ -602,7 +604,7 @@ Zubair right away. Don't try to fix it from the admin.
 
 ## Who to contact
 
-**Zubair** — <!-- TODO: confirm preferred contact: phone? email? Signal? -->
+**Zubair** — 514-220-2486, mznurie@msn.com
 
 When messaging:
 - Briefly describe what you tried to do
