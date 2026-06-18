@@ -157,9 +157,8 @@ more "hers" with:
 - Service cards: a real photo for each modality if possible
 
 A half-day shoot with a Montréal lifestyle/architectural photographer
-(~$600–800) would do more for the site's perceived production value
-than any code. Or a self-shoot with a tripod and natural light if budget
-is tight.
+or a self-shoot with a tripod and natural light if budget
+is tight will nudge the conversion rate slightly higher.
 
 **Status:** open
 
@@ -184,7 +183,7 @@ membership, languages spoken, insurance receipts. She should fill in:
 ### 10. Her own writing voice
 
 The current `heroBody`, `storyBody`, and bio copy are placeholders /
-my drafts. She should rewrite in her own voice when she's comfortable.
+my drafts or picked from the existing site. if she prefers, she can rewrite in her own voice when she's comfortable.
 The Keystatic admin makes this easy — TRAINING.md walks through how.
 
 Common areas to revise:
@@ -218,8 +217,7 @@ springmassagetherapy.ca:
 ### 12. Social media handles
 
 The site has Facebook and Instagram icons in the header/footer when
-URLs are set in Keystatic. Are her current social URLs correct? Does
-she want to keep using them, or relaunch fresh accounts?
+URLs are set in Keystatic. Are her current social URLs correct or they need to point to something else?
 
 **Status:** open
 
@@ -268,9 +266,7 @@ Who fixes things when something breaks? Some realistic scenarios:
 - "I want to change the booking platform" → moderate work
 - "I want to add a different service" → no code, just Keystatic
 
-Are you (Zubair) on call for these? Free, paid, or "first six months
-free then we'll see"? Worth setting expectations explicitly so she
-doesn't feel awkward asking.
+Zubair can help with these, and provide free support with issues until March 2028.
 
 **Status:** open
 
@@ -319,7 +315,7 @@ Volume on a single-practitioner practice is usually low.
 - **Phone/email purchase** (recommended for low volume): a simple page
   listing denominations ($50 / $100 / $150) with a "Call to purchase"
   CTA. She handles payment via e-transfer or phone, mails or emails a
-  PDF voucher. Zero recurring cost. Probably right for now.
+  PDF voucher. Zero recurring cost. in my opinion the best option for now.
 - **Stripe Payment Links** (~2 hours of setup): real online payment,
   she still manually emails the recipient a code or PDF after. Stripe
   takes 2.9% + 30¢ per transaction, no monthly fee. Right when volume
@@ -327,7 +323,7 @@ Volume on a single-practitioner practice is usually low.
 - **Full gift card system** (Square / Shopify / Acuity gift
   certificates): codes generate automatically, balances tracked,
   redemption integrates with the booking platform. ~$30/month + much
-  more setup. Only makes sense at higher volume.
+  more setup. Only makes sense at higher volume, unlikely in the short term.
 
 **Where it lives on the site (assuming yes):** the main nav has 6
 links already (Home / Promotions / Services / Reviews / About /
